@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description: p.description,
     alternates: { canonical: `/products/${p.slug}` },
     openGraph: {
-      type: "product",
+      type: "website",
       title: p.name,
       description: p.description,
       images: [{ url: p.image }],
@@ -22,5 +22,5 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default function ProductDetailPage({ params }: { params: Params }) {
   const product = getProductBySlug(params.slug)
-  return <ProductDetailPageClient product={product} />
+  // return <ProductDetailPageClient product={product} />
 }
