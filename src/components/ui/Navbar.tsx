@@ -6,8 +6,10 @@ import { getCart } from "@/lib/cart"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ShoppingCart } from "lucide-react"
+import { ThemeToggle } from "./theme-toggler"
 
-export function SiteNavbar() {
+
+export function Navbar() {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export function SiteNavbar() {
           <Link href="/cart" aria-label="Open cart" className="relative">
             <Button variant="outline" className="flex items-center gap-2 bg-transparent">
               <ShoppingCart className="h-4 w-4" aria-hidden />
-              <span>Cart</span>
+              {/* <span>Cart</span> */}
               <span
                 aria-live="polite"
                 aria-atomic="true"
@@ -70,6 +72,9 @@ export function SiteNavbar() {
               </span>
             </Button>
           </Link>
+
+          <ThemeToggle />
+
         </div>
       </nav>
     </header>
