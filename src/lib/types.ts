@@ -1,18 +1,31 @@
+// types.ts
 export type Product = {
   id: string
   slug: string
   name: string
+  title: string
   sku: string
   description: string
   price: number
   mrp?: number
   quantity: number
+  stock: number
   status: "active" | "draft" | "archived"
   category: string
   brand?: string
   rating?: number
   image: string
   updatedAt: string
+}
+
+export type User = {
+  id: string
+  name: string
+  email: string
+  role: "admin" | "customer" | "vendor"
+  password?: string
+  isActive?: boolean
+  lastActiveAt?: string
 }
 
 export type Address = {
