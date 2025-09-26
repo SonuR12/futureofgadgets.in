@@ -40,7 +40,7 @@ const HeaderSlider = () => {
     return () => clearInterval(interval);
   }, [sliderData.length]);
 
-  const handleSlideChange = (index) => {
+  const handleSlideChange = (index: number) => {
     setCurrentSlide(index);
   };
 
@@ -75,7 +75,7 @@ const HeaderSlider = () => {
             <div className="flex items-center flex-1 justify-center">
               <div
                 className="md:w-72 w-48 h-48 md:h-72 bg-contain bg-center bg-no-repeat"
-                style={{backgroundImage: `url(${slide.imgSrc})`}}
+                // style={{backgroundImage: `url(${slide.imgSrc})`}}
               />
             </div>
           </div>
