@@ -57,7 +57,9 @@ export default function RootLayout({
       >
          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <Navbar />
-        {children}
+        <div className="pt-14">
+          {children}
+        </div>
          <Toaster />
         </ThemeProvider>
       </body>
