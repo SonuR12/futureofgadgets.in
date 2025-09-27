@@ -15,6 +15,7 @@ export type Product = {
   brand?: string
   rating?: number
   image: string
+  images?: string[]
   updatedAt: string
 }
 
