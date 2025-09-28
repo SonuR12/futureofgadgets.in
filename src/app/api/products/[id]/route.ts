@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const data = await req.json();
     const product = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: data.name,
         slug: data.slug,
@@ -28,11 +29,12 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     // Get product details before deletion
     const product = await prisma.product.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
     
     if (!product) {
@@ -41,7 +43,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     // Delete from database
     await prisma.product.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     // Delete product directory

@@ -13,7 +13,7 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
+      authorized: () => {
         // Allow all requests to pass through middleware function
         // We handle authorization in the middleware function above
         return true
