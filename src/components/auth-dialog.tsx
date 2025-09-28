@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
 
 interface AuthDialogProps {
   open: boolean
@@ -16,16 +17,33 @@ interface AuthDialogProps {
 export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
   const [isSignUp, setIsSignUp] = useState(mode === 'signup')
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+
+  useEffect(() => {
+    setIsSignUp(mode === 'signup')
+  }, [mode])
 
   const handleCredentialsAuth = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     try {
-      await signIn('credentials', { email, password })
-      onOpenChange(false)
+      const result = await signIn('credentials', { 
+        email, 
+        password,
+        redirect: false
+      })
+      if (result?.ok) {
+        toast.success(isSignUp ? 'Account created successfully!' : 'Welcome back!')
+        onOpenChange(false)
+      } else {
+        toast.error('Invalid credentials. Please try again.')
+      }
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -34,8 +52,13 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true)
     try {
-      await signIn('google')
-      onOpenChange(false)
+      const result = await signIn('google', { redirect: false })
+      if (result?.ok) {
+        toast.success('Welcome!')
+        onOpenChange(false)
+      }
+    } catch (error) {
+      toast.error('Google sign in failed. Please try again.')
     } finally {
       setIsGoogleLoading(false)
     }
@@ -56,6 +79,22 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
             </DialogHeader>
             <div className="space-y-6 p-2">
           <form onSubmit={handleCredentialsAuth} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Full Name
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-11"
+                  required
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email address
@@ -70,6 +109,22 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                 required
               />
             </div>
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm font-medium">
+                  Phone Number
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="Enter phone number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  className="h-11"
+                  required
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium">
                 Password
@@ -84,7 +139,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                 required
               />
             </div>
-            <button type="submit" className="w-full h-11 font-medium text-sm rounded-md cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" disabled={isLoading}>
+            <button type="submit" className="w-full h-11 font-medium text-sm rounded-md cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center justify-center" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
