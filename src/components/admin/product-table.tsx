@@ -64,6 +64,7 @@ type Item = {
   price: number;
   quantity: number;
   brand?: string;
+  sku?: string;
   updatedAt: string;
 };
 
@@ -159,6 +160,7 @@ export default function ProductTable() {
             price: Number(p.price ?? 0),
             quantity: Number(p.quantity ?? p.stock ?? 0),
             brand: p.brand ?? "",
+            sku: p.sku ?? `SKU-${Date.now()}`,
             updatedAt: p.updatedAt ?? new Date().toISOString(),
           };
         });
@@ -338,6 +340,7 @@ export default function ProductTable() {
         price: Number(p.price ?? 0),
         quantity: Number(p.quantity ?? p.stock ?? 0),
         brand: p.brand ?? "",
+        sku: p.sku ?? `SKU-${Date.now()}`,
         updatedAt: p.updatedAt ?? new Date().toISOString(),
       }));
       setData(items);
