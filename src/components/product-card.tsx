@@ -24,17 +24,17 @@ export default function ProductCard({ product }: { product: Product }) {
         <CardContent className="flex flex-col gap-4">
           <Link href={`/products/${product.slug}`} className="block">
             <img
-              src={`${product.image}?height=220&width=320&query=product-main`}
+              src={product.frontImage || product.image || '/placeholder.svg'}
               alt={`${product.name} image`}
               className="h-48 w-full rounded-md border bg-card object-cover"
             />
           </Link>
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-2">
-              <span className="font-semibold text-foreground">${product.price.toFixed(2)}</span>
+              <span className="font-semibold text-foreground">₹{product.price.toFixed(2)}</span>
               {discounted && (
                 <>
-                  <span className="text-muted-foreground line-through">${product.mrp?.toFixed(2)}</span>
+                  <span className="text-muted-foreground line-through">₹{product.mrp?.toFixed(2)}</span>
                   <span className="text-green-600 text-sm" aria-label={`${discountPct}% off`}>
                     {discountPct}% off
                   </span>
@@ -53,7 +53,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 slug: product.slug,
                 name: product.name,
                 price: product.price,
-                image: product.image,
+                image: product.frontImage || product.image,
               })
               toast({ title: "Added to cart", description: `${product.name} has been added.` })
             }}

@@ -67,13 +67,10 @@ type Item = {
   updatedAt: string;
 };
 
-// Validation schema
 const itemSchema = z.object({
   name: z.string().min(1, "Name is required"),
   category: z.string().min(1, "Category is required"),
   description: z.string().min(1, "Description is required"),
-  image: z.string().url("Must be a valid URL"),
-  images: z.string().min(1, "At least one image is required"),
   price: z.number().min(0, "Price is required"),
   quantity: z.number().min(0, "Quantity is required"),
   brand: z.string().optional(),
@@ -88,11 +85,16 @@ export default function ProductTable() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [frontImage, setFrontImage] = useState<File | null>(null);
+  const [additionalImages, setAdditionalImages] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [currentFrontImage, setCurrentFrontImage] = useState<string>("");
+  const [currentImages, setCurrentImages] = useState<string[]>([]);
 
   // Product type dropdown state
   const [productTypes, setProductTypes] = useState<string[]>([
     "Laptops",
-    "Desktops", 
+    "Desktops",
     "Monitors",
     "Keyboards",
     "Mouse",
@@ -110,7 +112,7 @@ export default function ProductTable() {
     "Cables",
     "Printers",
     "Tablets",
-    "Smartphones"
+    "Smartphones",
   ]);
   const [addingNewType, setAddingNewType] = useState(false);
   const [newType, setNewType] = useState("");
@@ -119,8 +121,6 @@ export default function ProductTable() {
     name: "",
     category: "",
     description: "",
-    image: "",
-    images: "",
     price: 0,
     quantity: 0,
     brand: "",
@@ -135,20 +135,33 @@ export default function ProductTable() {
     fetch("/api/products", { cache: "no-store" })
       .then((r) => r.json())
       .then((products) => {
-        const items: Item[] = (products || []).map((p: any) => ({
-          id: p.id ?? Date.now().toString(),
-          slug: p.slug ?? "",
-          name: p.name ?? p.title ?? "Untitled",
-          title: p.title ?? p.name ?? "Untitled",
-          category: p.category ?? p.type ?? "General",
-          description: p.description ?? "",
-          image: p.image ?? p.coverImage ?? "/placeholder.svg",
-          images: Array.isArray(p.images) ? p.images : (p.images?.split?.(",").map((s: string) => s.trim()) ?? []),
-          price: Number(p.price ?? 0),
-          quantity: Number(p.quantity ?? p.stock ?? 0),
-          brand: p.brand ?? "",
-          updatedAt: p.updatedAt ?? new Date().toISOString(),
-        }));
+        const items: Item[] = (products || []).map((p: any) => {
+          console.log(
+            "Initial loading product:",
+            p.name,
+            "frontImage:",
+            p.frontImage,
+            "image:",
+            p.image
+          );
+          return {
+            id: p.id ?? Date.now().toString(),
+            slug: p.slug ?? "",
+            name: p.name ?? p.title ?? "Untitled",
+            title: p.title ?? p.name ?? "Untitled",
+            category: p.category ?? p.type ?? "General",
+            description: p.description ?? "",
+            image:
+              p.frontImage ?? p.image ?? p.coverImage ?? "/placeholder.svg",
+            images: Array.isArray(p.images)
+              ? p.images
+              : p.images?.split?.(",").map((s: string) => s.trim()) ?? [],
+            price: Number(p.price ?? 0),
+            quantity: Number(p.quantity ?? p.stock ?? 0),
+            brand: p.brand ?? "",
+            updatedAt: p.updatedAt ?? new Date().toISOString(),
+          };
+        });
         setData(items);
         setIsLoading(false);
 
@@ -185,6 +198,8 @@ export default function ProductTable() {
       setEditId(null);
       setAddingNewType(false);
       setNewType("");
+      setCurrentFrontImage("");
+      setCurrentImages([]);
     }
   }, [open, editId]);
 
@@ -194,12 +209,14 @@ export default function ProductTable() {
       name: item.name,
       category: item.category,
       description: item.description,
-      image: item.image,
-      images: (item.images || []).join(", "),
       price: item.price,
       quantity: item.quantity,
       brand: item.brand || "",
     });
+    setFrontImage(null);
+    setAdditionalImages([]);
+    setCurrentFrontImage(item.image || "");
+    setCurrentImages(item.images || []);
     setOpen(true);
   };
 
@@ -235,75 +252,109 @@ export default function ProductTable() {
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
   };
 
   const onSubmit = async (values: ItemFormValues) => {
-    const imagesArr = values.images
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    const productData = {
-      ...values,
-      title: values.name,
-      slug: generateSlug(values.name),
-      images: imagesArr,
-      stock: values.quantity,
-      status: "active" as const,
-      sku: `SKU-${Date.now()}`,
-    };
-
-    if (editId) {
-      // Edit existing item
-      try {
-        const res = await fetch(`/api/products/${editId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productData),
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data?.error || "Failed to update item");
-        }
-
-        const updatedItem = await res.json();
-        setData((prev) =>
-          prev.map((it) => (it.id === editId ? updatedItem : it))
-        );
-        toast.success("Item updated successfully!");
-      } catch (err: any) {
-        console.error(err);
-        toast.error(`Update failed: ${err.message}`);
-      }
-    } else {
-      // Add new item
-      try {
-        const res = await fetch("/api/products", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productData),
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data?.error || "Failed to add item");
-        }
-
-        const newItem = await res.json();
-        setData((prev) => [newItem, ...prev]);
-        toast.success("Item added successfully!");
-      } catch (err: any) {
-        console.error(err);
-        toast.error(`Add failed: ${err.message}`);
-      }
+    if (!frontImage && !editId && !currentFrontImage) {
+      toast.error("Front image is required");
+      return;
     }
 
-    form.reset(defaultValues);
-    setOpen(false);
-    setEditId(null);
+    setUploading(true);
+    try {
+      let frontImageUrl = currentFrontImage;
+      let additionalImageUrls = currentImages;
+
+      // Only upload new images if files are selected
+      if (frontImage || additionalImages.length > 0) {
+        const formData = new FormData();
+        formData.append("productName", values.name);
+        if (frontImage) formData.append("frontImage", frontImage);
+        additionalImages.forEach((img, index) => {
+          formData.append(`image${index}`, img);
+        });
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadResult = await uploadRes.json();
+        if (!uploadResult.success) throw new Error(uploadResult.error);
+
+        if (frontImage) frontImageUrl = uploadResult.files[0];
+        if (additionalImages.length > 0)
+          additionalImageUrls = uploadResult.files.slice(frontImage ? 1 : 0);
+      }
+
+      const productData = {
+        name: values.name,
+        title: values.name,
+        slug: generateSlug(values.name),
+        category: values.category,
+        description: values.description,
+        frontImage: frontImageUrl,
+        images: additionalImageUrls,
+        price: values.price,
+        quantity: values.quantity,
+        brand: values.brand,
+        status: "active" as const,
+        sku: editId
+          ? data.find((item) => item.id === editId)?.sku || `SKU-${Date.now()}`
+          : `SKU-${Date.now()}`,
+      };
+
+      const url = editId ? `/api/products/${editId}` : "/api/products";
+      const method = editId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(
+          errorData?.error || `Failed to ${editId ? "update" : "add"} item`
+        );
+      }
+
+      // Refresh the data from API
+      const refreshRes = await fetch("/api/products", { cache: "no-store" });
+      const refreshedProducts = await refreshRes.json();
+
+      const items = (refreshedProducts || []).map((p: any) => ({
+        id: p.id ?? Date.now().toString(),
+        slug: p.slug ?? "",
+        name: p.name ?? p.title ?? "Untitled",
+        title: p.title ?? p.name ?? "Untitled",
+        category: p.category ?? p.type ?? "General",
+        description: p.description ?? "",
+        image: p.frontImage ?? p.image ?? "/placeholder.svg",
+        images: Array.isArray(p.images) ? p.images : [],
+        price: Number(p.price ?? 0),
+        quantity: Number(p.quantity ?? p.stock ?? 0),
+        brand: p.brand ?? "",
+        updatedAt: p.updatedAt ?? new Date().toISOString(),
+      }));
+      setData(items);
+
+      toast.success(`Item ${editId ? "updated" : "added"} successfully!`);
+      form.reset(defaultValues);
+      setFrontImage(null);
+      setAdditionalImages([]);
+      setCurrentFrontImage("");
+      setCurrentImages([]);
+      setEditId(null);
+      setOpen(false);
+    } catch (err: any) {
+      toast.error(`Failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
   };
 
   if (error)
@@ -326,216 +377,330 @@ export default function ProductTable() {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="cursor-pointer">Add Item <Plus/></Button>
+            <Button className="cursor-pointer">
+              Add Item <Plus />
+            </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{editId ? "Edit Item" : "Add New Item"}</DialogTitle>
+        <DialogContent className="sm:min-w-[60vw] h-[90vh] max-w-none overflow-y-auto p-8">
+            <DialogHeader className="pb-6">
+              <DialogTitle className="text-2xl font-semibold">{editId ? "Edit Item" : "Add New Item"}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
+                className="space-y-10"
               >
-                {/* Name */}
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Item Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Item Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex flex-col sm:flex-row gap-8">
+                  <div className="flex-1 space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-900 border-b-2 pb-3">Product Details</h3>
+                    <div className="space-y-6">
+                      {/* Name */}
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Item Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Item Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                {/* Brand */}
-                <FormField
-                  control={form.control}
-                  name="brand"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Brand (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. ASUS, Dell, Samsung" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      {/* Brand */}
+                      <FormField
+                        control={form.control}
+                        name="brand"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Brand (Optional)</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g. ASUS, Dell, Samsung"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                {/* Category with dropdown */}
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      {!addingNewType ? (
-                        <FormControl>
-                          <Select
-                            value={field.value}
-                            onValueChange={(val) => {
-                              if (val === "add_new") {
-                                setAddingNewType(true);
-                              } else {
-                                field.onChange(val);
-                              }
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {productTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
-                              ))}
-                              <SelectItem value="add_new">
-                                ➕ Add new category
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                      ) : (
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Enter new category"
-                            value={newType}
-                            onChange={(e) => setNewType(e.target.value)}
-                          />
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={handleAddNewType}
-                          >
-                            Save
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setAddingNewType(false);
-                              setNewType("");
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      {/* Category with dropdown */}
+                      <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            {!addingNewType ? (
+                              <FormControl>
+                                <Select
+                                  value={field.value}
+                                  onValueChange={(val) => {
+                                    if (val === "add_new") {
+                                      setAddingNewType(true);
+                                    } else {
+                                      field.onChange(val);
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a category" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {productTypes.map((type) => (
+                                      <SelectItem key={type} value={type} className="relative flex items-center justify-between pr-8">
+                                        <span>{type}</span>
+                                        {field.value === type ? (
+                                          <span className="absolute right-2 text-green-500 text-sm w-4 h-4 flex items-center justify-center">
+                                            ✓
+                                          </span>
+                                        ) : (
+                                          <div
+                                            onMouseDown={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              setProductTypes(prev => prev.filter(t => t !== type));
+                                              toast.success(`Removed category: ${type}`);
+                                            }}
+                                            className="absolute right-2 text-red-500 hover:text-red-700 text-sm w-4 h-4 flex items-center justify-center cursor-pointer z-10"
+                                          >
+                                            ✕
+                                          </div>
+                                        )}
+                                      </SelectItem>
+                                    ))}
+                                    <SelectItem value="add_new">
+                                      ➕ Add new category
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="Enter new category"
+                                  value={newType}
+                                  onChange={(e) => setNewType(e.target.value)}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="secondary"
+                                  onClick={handleAddNewType}
+                                >
+                                  Save
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setAddingNewType(false);
+                                    setNewType("");
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                {/* Description */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Item description..."
-                          {...field}
+                      {/* Price + Quantity */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price (INR)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="e.g. 1299"
+                                  value={field.value === 0 ? "" : field.value}
+                                  onChange={(e) =>
+                                    field.onChange(Number(e.target.value) || 0)
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormField
+                          control={form.control}
+                          name="quantity"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Quantity</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="e.g. 10"
+                                  value={field.value === 0 ? "" : field.value}
+                                  onChange={(e) =>
+                                    field.onChange(Number(e.target.value) || 0)
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                {/* Cover image */}
-                <FormField
-                  control={form.control}
-                  name="image"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Main Image URL</FormLabel>
-                      <FormControl>
+                       {/* Description */}
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Item description..."
+                                {...field}
+                                rows={4}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Images Section */}
+                  <div className="flex-1 space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-900 border-b-2 pb-3">Product Images</h3>
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Front Image *
+                        </label>
                         <Input
-                          placeholder="https://example.com/image.jpg"
-                          {...field}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            const totalImages =
+                              (file ? 1 : 0) + additionalImages.length;
+                            if (totalImages > 5) {
+                              toast.error(
+                                `Maximum 5 images allowed. You have ${additionalImages.length} additional images.`
+                              );
+                              return;
+                            }
+                            setFrontImage(file);
+                          }}
+                          className="cursor-pointer"
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        {frontImage ? (
+                          <div className="mt-2">
+                            <img
+                              src={URL.createObjectURL(frontImage)}
+                              alt="New Preview"
+                              className="w-20 h-20 object-cover rounded"
+                            />
+                          </div>
+                        ) : (
+                          currentFrontImage && (
+                            <div className="mt-2">
+                              <img
+                                src={currentFrontImage}
+                                alt="Current Image"
+                                className="w-20 h-20 object-cover rounded border-2 border-blue-200"
+                              />
+                              <p className="text-xs text-gray-500 mt-1">
+                                Current image
+                              </p>
+                            </div>
+                          )
+                        )}
+                      </div>
 
-                {/* Additional images */}
-                <FormField
-                  control={form.control}
-                  name="images"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Additional Images (comma separated URLs)
-                      </FormLabel>
-                      <FormControl>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Additional Images
+                        </label>
                         <Input
-                          placeholder="https://img1.jpg, https://img2.jpg"
-                          {...field}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            const totalImages =
+                              (frontImage ? 1 : 0) + files.length;
+                            if (totalImages > 5) {
+                              toast.error(
+                                `Maximum 5 images allowed (including front image). You selected ${totalImages} images.`
+                              );
+                              return;
+                            }
+                            setAdditionalImages(files);
+                          }}
+                          className="cursor-pointer"
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Price + Quantity */}
-                <div className="grid grid-cols-2 gap-2">
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price (INR)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="e.g. 1299"
-                            value={field.value === 0 ? "" : field.value}
-                            onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="quantity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Quantity</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="e.g. 10"
-                            value={field.value === 0 ? "" : field.value}
-                            onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Max 4 additional images (5 total including front
+                          image)
+                        </p>
+                        {additionalImages.length > 0 ? (
+                          <div className="mt-2 flex gap-2 flex-wrap">
+                            {additionalImages.map((img, index) => (
+                              <img
+                                key={index}
+                                src={URL.createObjectURL(img)}
+                                alt={`New Preview ${index + 1}`}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          currentImages.length > 0 && (
+                            <div className="mt-2">
+                              <div className="flex gap-2 flex-wrap">
+                                {currentImages.map((img, index) => (
+                                  <img
+                                    key={index}
+                                    src={img}
+                                    alt={`Current ${index + 1}`}
+                                    className="w-16 h-16 object-cover rounded border-2 border-blue-200"
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Current additional images
+                              </p>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {/* First Row - Form Fields */}
                 </div>
 
-                <div className="flex gap-2 justify-end">
-                  <Button
+                {/* Action Buttons */}
+                <div className="flex gap-4 justify-end pt-6 border-t-2 mt-8">
+                  <Button className="cursor-pointer"
                     type="button"
                     variant="outline"
                     onClick={() => setOpen(false)}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">
-                    {editId ? "Update Item" : "Add Item"}
+                  <Button type="submit" className="cursor-pointer" disabled={uploading}>
+                    {uploading
+                      ? "Uploading..."
+                      : editId
+                      ? "Update Item"
+                      : "Save"}
                   </Button>
                 </div>
               </form>
@@ -552,10 +717,10 @@ export default function ProductTable() {
         <TableHeader>
           <TableRow>
             <TableHead>Item</TableHead>
-            <TableHead>Type</TableHead>
+            <TableHead>Category</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead >Price</TableHead>
-            <TableHead >Quantity</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead>Quantity</TableHead>
             <TableHead>Updated</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -576,14 +741,23 @@ export default function ProductTable() {
             return (
               <TableRow
                 key={item.id}
-                className={lowStock ? "bg-muted/40" : undefined}
+                className={`${lowStock ? "bg-muted/40" : ""}`}
               >
                 <TableCell>
-                  <div className="flex items-center gap-3">
+                  <div
+                    className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded hover:underline"
+                    onClick={() =>
+                      window.open(`/products/${item.slug}`, "_blank")
+                    }
+                  >
                     <img
                       src={item.image || "/placeholder.svg"}
                       alt={item.name}
                       className="h-12 w-12 rounded-md border object-cover"
+                      onError={(e) => {
+                        console.log("Image failed to load:", item.image);
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
                     />
                     <div>
                       <div className="font-medium">{item.name}</div>
@@ -594,19 +768,19 @@ export default function ProductTable() {
                   </div>
                 </TableCell>
                 <TableCell>{item.category}</TableCell>
-                <TableCell>{item.description.slice(0,30)}</TableCell>
-                <TableCell className="text-right">
+                <TableCell>{item.description.slice(0, 30)}...</TableCell>
+                <TableCell className="text-left">
                   ₹{item.price.toFixed(2)}
                 </TableCell>
-                <TableCell className="text-right">{item.quantity}</TableCell>
+                <TableCell className="text-center">{item.quantity}</TableCell>
                 <TableCell>
                   {new Date(item.updatedAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="flex gap-2">
+                <TableCell className="align-middle space-x-2">
                   {/* Edit with AlertDialog */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="cursor-pointer">
                         Edit
                       </Button>
                     </AlertDialogTrigger>
@@ -619,9 +793,9 @@ export default function ProductTable() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          className="bg-green-600 text-white hover:bg-green-700"
+                          className="bg-green-600 text-white hover:bg-green-700 cursor-pointer"
                           onClick={() => handleEditClick(item)}
                         >
                           Yes
@@ -633,7 +807,7 @@ export default function ProductTable() {
                   {/* Delete with AlertDialog */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="destructive">
+                      <Button size="sm" variant="destructive" className="cursor-pointer">
                         Delete
                       </Button>
                     </AlertDialogTrigger>
@@ -649,9 +823,9 @@ export default function ProductTable() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          className="bg-red-600 text-white hover:bg-red-700"
+                          className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                           onClick={() => handleDelete(item.id)}
                         >
                           Delete
