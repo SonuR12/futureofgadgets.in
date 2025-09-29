@@ -51,6 +51,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { convertFileToBase64, validateImageFile } from "@/lib/image-utils";
+import LoadingButton from "@/components/ui/loading-button";
+import { cachedFetch, invalidateCache } from "@/lib/api-cache";
 
 type Item = {
   id: string;
@@ -89,6 +92,7 @@ export default function ProductTable() {
   const [frontImage, setFrontImage] = useState<File | null>(null);
   const [additionalImages, setAdditionalImages] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [currentFrontImage, setCurrentFrontImage] = useState<string>("");
   const [currentImages, setCurrentImages] = useState<string[]>([]);
 
@@ -133,8 +137,7 @@ export default function ProductTable() {
   });
 
   useEffect(() => {
-    fetch("/api/products", { cache: "no-store" })
-      .then((r) => r.json())
+    cachedFetch("/api/products", { cache: "no-store" }, 10000)
       .then((products) => {
         const items: Item[] = (products || []).map((p: any) => {
           console.log(
@@ -223,21 +226,32 @@ export default function ProductTable() {
   };
 
   const handleDelete = async (id: string) => {
+    setDeleting(id);
+    const originalData = data;
+    
+    // Optimistic update
+    setData((prev) => prev.filter((item) => item.id !== id));
+    toast.success("Item deleted successfully!");
+
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: "DELETE",
       });
 
       if (!res.ok) {
+        setData(originalData);
         const data = await res.json();
         throw new Error(data?.error || "Failed to delete");
       }
-
-      setData((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Item deleted successfully!");
+      
+      // Invalidate cache
+      invalidateCache('products');
     } catch (err: any) {
+      setData(originalData);
       console.error(err);
       toast.error(`Delete failed: ${err.message}`);
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -258,6 +272,8 @@ export default function ProductTable() {
       .replace(/(^-|-$)/g, "");
   };
 
+
+
   const onSubmit = async (values: ItemFormValues) => {
     if (!frontImage && !editId && !currentFrontImage) {
       toast.error("Front image is required");
@@ -271,16 +287,26 @@ export default function ProductTable() {
 
       // Only upload new images if files are selected
       if (frontImage || additionalImages.length > 0) {
-        const formData = new FormData();
-        formData.append("productName", values.name);
-        if (frontImage) formData.append("frontImage", frontImage);
-        additionalImages.forEach((img, index) => {
-          formData.append(`image${index}`, img);
-        });
+        const imagesToUpload = [];
+        
+        if (frontImage) {
+          const frontImageBase64 = await convertFileToBase64(frontImage, 600, 0.6);
+          imagesToUpload.push(frontImageBase64);
+        }
+        
+        if (additionalImages.length > 0) {
+          const additionalImagesBase64 = await Promise.all(
+            additionalImages.map(img => convertFileToBase64(img, 400, 0.5))
+          );
+          imagesToUpload.push(...additionalImagesBase64);
+        }
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
-          body: formData,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ images: imagesToUpload }),
         });
 
         const uploadResult = await uploadRes.json();
@@ -324,27 +350,32 @@ export default function ProductTable() {
         );
       }
 
-      // Refresh the data from API
-      const refreshRes = await fetch("/api/products", { cache: "no-store" });
-      const refreshedProducts = await refreshRes.json();
+      // Optimistic update - update UI immediately
+      const newItem = {
+        id: editId || Date.now().toString(),
+        slug: generateSlug(values.name),
+        name: values.name,
+        title: values.name,
+        category: values.category,
+        description: values.description,
+        image: frontImageUrl,
+        images: additionalImageUrls,
+        price: values.price,
+        quantity: values.quantity,
+        brand: values.brand || "",
+        sku: editId ? data.find((item) => item.id === editId)?.sku || `SKU-${Date.now()}` : `SKU-${Date.now()}`,
+        updatedAt: new Date().toISOString(),
+      };
 
-      const items = (refreshedProducts || []).map((p: any) => ({
-        id: p.id ?? Date.now().toString(),
-        slug: p.slug ?? "",
-        name: p.name ?? p.title ?? "Untitled",
-        title: p.title ?? p.name ?? "Untitled",
-        category: p.category ?? p.type ?? "General",
-        description: p.description ?? "",
-        image: p.frontImage ?? p.image ?? "/placeholder.svg",
-        images: Array.isArray(p.images) ? p.images : [],
-        price: Number(p.price ?? 0),
-        quantity: Number(p.quantity ?? p.stock ?? 0),
-        brand: p.brand ?? "",
-        sku: p.sku ?? `SKU-${Date.now()}`,
-        updatedAt: p.updatedAt ?? new Date().toISOString(),
-      }));
-      setData(items);
+      if (editId) {
+        setData(prev => prev.map(item => item.id === editId ? newItem : item));
+      } else {
+        setData(prev => [newItem, ...prev]);
+      }
 
+      // Invalidate cache to ensure fresh data on next load
+      invalidateCache('products');
+      
       toast.success(`Item ${editId ? "updated" : "added"} successfully!`);
       form.reset(defaultValues);
       setFrontImage(null);
@@ -591,13 +622,19 @@ export default function ProductTable() {
                           accept="image/*"
                           onChange={(e) => {
                             const file = e.target.files?.[0] || null;
-                            const totalImages =
-                              (file ? 1 : 0) + additionalImages.length;
-                            if (totalImages > 5) {
-                              toast.error(
-                                `Maximum 5 images allowed. You have ${additionalImages.length} additional images.`
-                              );
-                              return;
+                            if (file) {
+                              const validation = validateImageFile(file);
+                              if (!validation.valid) {
+                                toast.error(validation.error);
+                                return;
+                              }
+                              const totalImages = 1 + additionalImages.length;
+                              if (totalImages > 5) {
+                                toast.error(
+                                  `Maximum 5 images allowed. You have ${additionalImages.length} additional images.`
+                                );
+                                return;
+                              }
                             }
                             setFrontImage(file);
                           }}
@@ -637,8 +674,17 @@ export default function ProductTable() {
                           multiple
                           onChange={(e) => {
                             const files = Array.from(e.target.files || []);
-                            const totalImages =
-                              (frontImage ? 1 : 0) + files.length;
+                            
+                            // Validate each file
+                            for (const file of files) {
+                              const validation = validateImageFile(file);
+                              if (!validation.valid) {
+                                toast.error(`${file.name}: ${validation.error}`);
+                                return;
+                              }
+                            }
+                            
+                            const totalImages = (frontImage ? 1 : 0) + files.length;
                             if (totalImages > 5) {
                               toast.error(
                                 `Maximum 5 images allowed (including front image). You selected ${totalImages} images.`
@@ -698,13 +744,9 @@ export default function ProductTable() {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="cursor-pointer" disabled={uploading}>
-                    {uploading
-                      ? "Uploading..."
-                      : editId
-                      ? "Update Item"
-                      : "Save"}
-                  </Button>
+                  <LoadingButton type="submit" loading={uploading}>
+                    {editId ? "Update Item" : "Save"}
+                  </LoadingButton>
                 </div>
               </form>
             </Form>
@@ -810,9 +852,14 @@ export default function ProductTable() {
                   {/* Delete with AlertDialog */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="destructive" className="cursor-pointer">
+                      <LoadingButton 
+                        size="sm" 
+                        variant="destructive" 
+                        loading={deleting === item.id}
+                        disabled={deleting !== null}
+                      >
                         Delete
-                      </Button>
+                      </LoadingButton>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>

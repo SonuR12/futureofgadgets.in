@@ -25,5 +25,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ['/checkout/:path*'],
+  matcher: ['/admin/:path*', '/checkout/:path*'],
 }

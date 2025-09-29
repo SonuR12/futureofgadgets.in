@@ -1,53 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
+
+function compressBase64(base64: string, quality: number = 0.6): string {
+  // For server-side, we'll just validate and return
+  // Compression happens on client-side for better performance
+  if (!base64.startsWith('data:image/')) {
+    throw new Error('Invalid image format')
+  }
+  return base64
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.formData()
-    const productName = data.get('productName') as string
-    const files: File[] = []
+    const { images } = await request.json()
     
-    for (const [key, value] of data.entries()) {
-      if (value instanceof File) {
-        files.push(value)
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return NextResponse.json({ error: 'No images provided' }, { status: 400 })
+    }
+
+    // Validate and process images
+    const processedImages = images.map((imageData: string, index: number) => {
+      try {
+        return compressBase64(imageData)
+      } catch (error) {
+        throw new Error(`Invalid image format at index ${index}`)
       }
-    }
-
-    if (files.length === 0) {
-      return NextResponse.json({ error: 'No files uploaded' }, { status: 400 })
-    }
-
-    if (!productName) {
-      return NextResponse.json({ error: 'Product name is required' }, { status: 400 })
-    }
-
-    // Create safe directory name
-    const safeDirName = productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    const productDir = join(process.cwd(), 'public/uploads/productadd', safeDirName)
-    
-    // Create directory if it doesn't exist
-    if (!existsSync(productDir)) {
-      await mkdir(productDir, { recursive: true })
-    }
-
-    const uploadedFiles = []
-
-    for (const file of files) {
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-
-      const filename = `${Date.now()}-${file.name}`
-      const filePath = join(productDir, filename)
-      
-      await writeFile(filePath, buffer)
-      uploadedFiles.push(`/uploads/productadd/${safeDirName}/${filename}`)
-    }
+    })
 
     return NextResponse.json({ 
       success: true, 
-      files: uploadedFiles 
+      files: processedImages 
     })
   } catch (error) {
     console.error('Upload error:', error)

@@ -29,6 +29,7 @@ import { z } from "zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { convertFileToBase64, validateImageFile } from "@/lib/image-utils";
 
 interface Item {
   id: string;
@@ -78,6 +79,8 @@ export default function ItemFormWithList() {
     localStorage.setItem("items", JSON.stringify(items));
   }, [items]);
 
+
+
   const onSubmit = async (data: ItemFormValues) => {
     if (!frontImage) {
       toast.error("Front image is required");
@@ -86,15 +89,20 @@ export default function ItemFormWithList() {
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('frontImage', frontImage);
-      additionalImages.forEach((img, index) => {
-        formData.append(`image${index}`, img);
-      });
+      // Convert images to compressed base64
+      const frontImageBase64 = await convertFileToBase64(frontImage, 600, 0.6);
+      const additionalImagesBase64 = await Promise.all(
+        additionalImages.map(img => convertFileToBase64(img, 400, 0.5))
+      );
+
+      const allImages = [frontImageBase64, ...additionalImagesBase64];
 
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ images: allImages }),
       });
 
       const result = await response.json();
@@ -305,7 +313,17 @@ export default function ItemFormWithList() {
                 <Input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setFrontImage(e.target.files?.[0] || null)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    if (file) {
+                      const validation = validateImageFile(file);
+                      if (!validation.valid) {
+                        toast.error(validation.error);
+                        return;
+                      }
+                    }
+                    setFrontImage(file);
+                  }}
                   className="cursor-pointer"
                 />
                 {frontImage && (
@@ -325,7 +343,17 @@ export default function ItemFormWithList() {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) => setAdditionalImages(Array.from(e.target.files || []))}
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    for (const file of files) {
+                      const validation = validateImageFile(file);
+                      if (!validation.valid) {
+                        toast.error(`${file.name}: ${validation.error}`);
+                        return;
+                      }
+                    }
+                    setAdditionalImages(files);
+                  }}
                   className="cursor-pointer"
                 />
                 {additionalImages.length > 0 && (

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Product } from "@/lib/types"
 import { addToCart } from "@/lib/cart"
 import { useToast } from "@/hooks/use-toast"
+import OptimizedImage from "@/components/ui/optimized-image"
 
 export default function ProductCard({ product }: { product: Product }) {
   const { toast } = useToast()
@@ -23,7 +24,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Link href={`/products/${product.slug}`} className="block">
-            <img
+            <OptimizedImage
               src={product.frontImage || product.image || '/placeholder.svg'}
               alt={`${product.name} image`}
               className="h-48 w-full rounded-md border bg-card object-cover"

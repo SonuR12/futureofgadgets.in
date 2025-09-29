@@ -32,33 +32,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    // Get product details before deletion
-    const product = await prisma.product.findUnique({
-      where: { id }
-    });
     
-    if (!product) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
-
-    // Delete from database
     await prisma.product.delete({
       where: { id }
     });
-
-    // Delete product directory
-    if (product.name) {
-      const { rmdir } = await import('fs/promises');
-      const { join } = await import('path');
-      const { existsSync } = await import('fs');
-      
-      const safeDirName = product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      const productDir = join(process.cwd(), 'public/uploads/productadd', safeDirName);
-      
-      if (existsSync(productDir)) {
-        await rmdir(productDir, { recursive: true });
-      }
-    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
