@@ -93,7 +93,7 @@ export default function SettingsPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Today's Deals Count</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Today&apos;s Deals Count</label>
                 <Input
                   type="number"
                   value={homeSettings.todayDealsCount}
@@ -161,7 +161,7 @@ export default function SettingsPage() {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center gap-3 mb-6">
             <Tag className="h-6 w-6 text-red-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Today's Deals Settings</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Deals Settings</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

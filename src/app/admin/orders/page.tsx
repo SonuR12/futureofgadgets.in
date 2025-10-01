@@ -53,18 +53,30 @@ import {
 import Loading from "@/app/loading";
 
 // Component to fetch and display product image
-function ProductImage({ productId, productName }: { productId: string; productName: string }) {
+function ProductImage({
+  productId,
+  productName,
+}: {
+  productId: string;
+  productName: string;
+}) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/products')
-      .then(res => res.json())
-      .then(products => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((products) => {
         const product = products.find((p: any) => p.id === productId);
-        setImageSrc(product?.frontImage || product?.image || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop');
+        setImageSrc(
+          product?.frontImage ||
+            product?.image ||
+            "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+        );
       })
       .catch(() => {
-        setImageSrc('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop');
+        setImageSrc(
+          "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+        );
       });
   }, [productId]);
 
@@ -73,13 +85,14 @@ function ProductImage({ productId, productName }: { productId: string; productNa
       {!imageSrc ? (
         <span className="text-xs text-gray-500">loading</span>
       ) : (
-        <img 
+        <img
           src={imageSrc}
           alt={productName}
           className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop';
+            target.src =
+              "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop";
           }}
         />
       )}
@@ -163,9 +176,7 @@ export default function AdminOrdersPage() {
   }, [session, status]);
 
   if (status === "loading") {
-    return (
-          <Loading/>
-    );
+    return <Loading />;
   }
 
   if (
@@ -204,24 +215,24 @@ export default function AdminOrdersPage() {
     if (!selectedOrder) return;
 
     // Validate file
-    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
-      toast.error('File must be an image or PDF');
+    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+      toast.error("File must be an image or PDF");
       return;
     }
 
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      toast.error('File must be less than 5MB');
+      toast.error("File must be less than 5MB");
       return;
     }
 
     setUploadingBill(true);
     try {
       let base64: string;
-      
-      if (file.type.startsWith('image/')) {
+
+      if (file.type.startsWith("image/")) {
         // Use same compression method as products
-        const { convertFileToBase64 } = await import('@/lib/image-utils');
+        const { convertFileToBase64 } = await import("@/lib/image-utils");
         base64 = await convertFileToBase64(file, 1200, 0.8);
       } else {
         // For PDFs, convert directly to base64
@@ -237,7 +248,7 @@ export default function AdminOrdersPage() {
       const uploadRes = await fetch("/api/upload", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ images: [base64] }),
       });
@@ -251,9 +262,9 @@ export default function AdminOrdersPage() {
       const response = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          orderId: selectedOrder.id, 
-          billUrl: billUrl 
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          billUrl: billUrl,
         }),
       });
 
@@ -274,7 +285,7 @@ export default function AdminOrdersPage() {
 
       toast.success("Bill uploaded successfully");
     } catch (error: any) {
-      console.error('Bill upload error:', error);
+      console.error("Bill upload error:", error);
       toast.error(`Failed to upload bill: ${error.message}`);
     } finally {
       setUploadingBill(false);
@@ -381,108 +392,110 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="flex flex-col h-full">
-        {/* Header */}
-        <header className="bg-white px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders</h1>
-              <p className="text-sm sm:text-base text-gray-600">
-                {filteredAndSortedOrders.length} of {orders.length} orders
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Search orders..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-full sm:w-64"
-                />
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full sm:w-auto">
-                    <ArrowUpDown className="h-4 w-4 mr-2" />
-                    Sort
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setSortBy("date-desc")}>
-                    Newest First
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy("date-asc")}>
-                    Oldest First
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy("price-desc")}>
-                    Price: High to Low
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy("price-asc")}>
-                    Price: Low to High
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy("name-asc")}>
-                    Name: A to Z
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy("name-desc")}>
-                    Name: Z to A
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+      {/* Header */}
+      <header className="bg-white px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Orders
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600">
+              {filteredAndSortedOrders.length} of {orders.length} orders
+            </p>
           </div>
-        </header>
-
-        {/* Tabs */}
-        <div className="flex overflow-x-auto gap-4 sm:gap-8 px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-200">
-          {["all", "shipped", "pending", "delivered"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setStatusFilter(tab)}
-              className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
-                statusFilter === tab
-                  ? "border-blue-600 text-blue-700"
-                  : "border-transparent text-gray-400 cursor-pointer"
-              }`}
-            >
-              {tab === "all" && "All orders"}
-              {tab === "shipped" && "Dispatch"}
-              {tab === "pending" && "Pending"}
-              {tab === "delivered" && "Completed"}
-            </button>
-          ))}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search orders..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-full sm:w-64"
+              />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  Sort
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setSortBy("date-desc")}>
+                  Newest First
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("date-asc")}>
+                  Oldest First
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("price-desc")}>
+                  Price: High to Low
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("price-asc")}>
+                  Price: Low to High
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("name-asc")}>
+                  Name: A to Z
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("name-desc")}>
+                  Name: Z to A
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
+      </header>
 
-        {/* Orders Table */}
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                      Id
-                    </TableHead>
-                    <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                      Customer
-                    </TableHead>
-                    <TableHead className="hidden md:table-cell px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                      Address
-                    </TableHead>
-                    <TableHead className="hidden sm:table-cell px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                      Date
-                    </TableHead>
-                    <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                      Total
-                    </TableHead>
-                    <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                      Status
-                    </TableHead>
-                    <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
+      {/* Tabs */}
+      <div className="flex overflow-x-auto gap-4 sm:gap-8 px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-200">
+        {["all", "shipped", "pending", "delivered"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setStatusFilter(tab)}
+            className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
+              statusFilter === tab
+                ? "border-blue-600 text-blue-700"
+                : "border-transparent text-gray-400 cursor-pointer"
+            }`}
+          >
+            {tab === "all" && "All orders"}
+            {tab === "shipped" && "Dispatch"}
+            {tab === "pending" && "Pending"}
+            {tab === "delivered" && "Completed"}
+          </button>
+        ))}
+      </div>
+
+      {/* Orders Table */}
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Id
+                  </TableHead>
+                  <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Customer
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Address
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Date
+                  </TableHead>
+                  <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Total
+                  </TableHead>
+                  <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Status
+                  </TableHead>
+                  <TableHead className="px-3 sm:px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
@@ -546,133 +559,150 @@ export default function AdminOrdersPage() {
                   </TableRow>
                 ) : (
                   filteredAndSortedOrders.map((order, i) => (
-                      <TableRow
-                        key={order.id}
-                        className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => {
-                          setSelectedOrderId(order.id);
-                          setSelectedOrder(order);
-                          setShowOrderDialog(true);
-                        }}
-                      >
-                        <TableCell className="px-3 sm:px-6 py-4 font-medium">
-                          <span className="text-xs sm:text-sm">#{order.id.slice(-6)}</span>
-                        </TableCell>
-                        <TableCell className="px-3 sm:px-6 py-4">
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            {order.user.image ? (
-                              <img
-                                src={order.user.image}
-                                alt={order.user.name || order.user.email}
-                                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-medium text-xs bg-gradient-to-r from-blue-500 to-purple-600">
-                                {(order.user.name || order.user.email).charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <div className="text-xs sm:text-sm font-medium truncate">
-                                {order.user.name || order.user.email}
-                              </div>
-                              <div className="text-xs text-gray-500 sm:hidden truncate">
-                                {order.address.city}
-                              </div>
+                    <TableRow
+                      key={order.id}
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => {
+                        setSelectedOrderId(order.id);
+                        setSelectedOrder(order);
+                        setShowOrderDialog(true);
+                      }}
+                    >
+                      <TableCell className="px-3 sm:px-6 py-4 font-medium">
+                        <span className="text-xs sm:text-sm">
+                          #{order.id.slice(-6)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          {order.user.image ? (
+                            <img
+                              src={order.user.image}
+                              alt={order.user.name || order.user.email}
+                              className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-medium text-xs bg-gradient-to-r from-blue-500 to-purple-600">
+                              {(order.user.name || order.user.email)
+                                .charAt(0)
+                                .toUpperCase()}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="text-xs sm:text-sm font-medium truncate">
+                              {order.user.name || order.user.email}
+                            </div>
+                            <div className="text-xs text-gray-500 sm:hidden truncate">
+                              {order.address.city}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell px-3 sm:px-6 py-4">
-                          <span className="text-sm">{order.address.city}, {order.address.state}</span>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell px-3 sm:px-6 py-4">
-                          <span className="text-xs sm:text-sm">
-                            {new Date(order.createdAt).toLocaleDateString(
-                              "en-GB",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "2-digit",
-                              }
-                            )}
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-3 sm:px-6 py-4">
-                          <span className="text-xs sm:text-sm font-medium">₹{order.total.toFixed(2)}</span>
-                        </TableCell>
-                        <TableCell className="px-3 sm:px-6 py-4">
-                          <span
-                            className={`px-2 py-1 text-xs rounded-full font-medium ${
-                              order.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : order.status === "shipped"
-                                ? "bg-blue-100 text-blue-800"
-                                : order.status === "delivered"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </TableCell>
-                        <TableCell
-                          className="px-3 sm:px-6 py-4"
-                          onClick={(e) => e.stopPropagation()}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell px-3 sm:px-6 py-4">
+                        <span className="text-sm">
+                          {order.address.city}, {order.address.state}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 sm:px-6 py-4">
+                        <span className="text-xs sm:text-sm">
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "2-digit",
+                            }
+                          )}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <span className="text-xs sm:text-sm font-medium">
+                          ₹{order.total.toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full font-medium ${
+                            order.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : order.status === "shipped"
+                              ? "bg-blue-100 text-blue-800"
+                              : order.status === "delivered"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
                         >
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedOrderId(order.id);
-                                  setSelectedOrder(order);
-                                  setShowOrderDialog(true);
-                                }}
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(order.id, "pending")}
-                                disabled={updatingOrder === order.id}
-                              >
-                                Pending
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(order.id, "shipped")}
-                                disabled={updatingOrder === order.id}
-                              >
-                                Shipped
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(order.id, "out-for-delivery")}
-                                disabled={updatingOrder === order.id}
-                              >
-                                Out for Delivery
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(order.id, "delivered")}
-                                disabled={updatingOrder === order.id}
-                              >
-                                Delivered
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  )
+                          {order.status}
+                        </span>
+                      </TableCell>
+                      <TableCell
+                        className="px-3 sm:px-6 py-4"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedOrderId(order.id);
+                                setSelectedOrder(order);
+                                setShowOrderDialog(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleStatusChange(order.id, "pending")
+                              }
+                              disabled={updatingOrder === order.id}
+                            >
+                              Pending
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleStatusChange(order.id, "shipped")
+                              }
+                              disabled={updatingOrder === order.id}
+                            >
+                              Shipped
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleStatusChange(order.id, "out-for-delivery")
+                              }
+                              disabled={updatingOrder === order.id}
+                            >
+                              Out for Delivery
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleStatusChange(order.id, "delivered")
+                              }
+                              disabled={updatingOrder === order.id}
+                            >
+                              Delivered
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
-            </div>
           </div>
         </div>
-
-
+      </div>
 
       {/* Order Details Dialog */}
       <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
@@ -725,9 +755,14 @@ export default function AdminOrdersPage() {
                         <div
                           key={idx}
                           className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                          onClick={() => window.open(`/products/${item.productId}`, '_blank')}
+                          onClick={() =>
+                            window.open(`/products/${item.productId}`, "_blank")
+                          }
                         >
-                          <ProductImage productId={item.productId} productName={item.name} />
+                          <ProductImage
+                            productId={item.productId}
+                            productName={item.name}
+                          />
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900 mb-1">
                               {item.name}
@@ -816,15 +851,15 @@ export default function AdminOrdersPage() {
                         </div>
                         <div className="">
                           <div>
-                            <span className="text-sm text-gray-600 font-medium">City:</span>
+                            <span className="text-sm text-gray-600 font-medium">
+                              City:
+                            </span>
                             <span className="ml-1 text-gray-900 break-words">
                               {selectedOrder.address.city},{" "}
                             </span>
                           </div>
+                          <div></div>
                           <div>
-                            </div>
-                            <div>
-                              
                             <span className="text-sm text-gray-600">
                               State:
                             </span>
@@ -843,9 +878,7 @@ export default function AdminOrdersPage() {
                         </div>
 
                         <div>
-                          <span className="text-sm text-gray-600">
-                            Phone:
-                          </span>
+                          <span className="text-sm text-gray-600">Phone:</span>
                           <span className="ml-1 text-gray-900 font-medium break-words">
                             {selectedOrder.address.phone}
                           </span>
@@ -1161,7 +1194,7 @@ export default function AdminOrdersPage() {
                         </Select>
                         {updatingDialogStatus && (
                           <div className="flex items-center gap-2 text-blue-600 mt-2">
-                            <Loader2 className="w-6 h-6 animate-spin"/>
+                            <Loader2 className="w-6 h-6 animate-spin" />
                             {/* <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div> */}
                             <span className="text-sm">Updating...</span>
                           </div>
