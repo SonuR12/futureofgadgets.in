@@ -11,32 +11,42 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     
-    console.log('Fetching orders for admin:', session.user?.email)
-    
     const orders = await prisma.order.findMany({
-      include: {
+      select: {
+        id: true,
+        userId: true,
+        total: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        billUrl: true,
+        paymentMethod: true,
+        deliveryDate: true,
+        items: true,
+        address: true,
         user: {
           select: {
             id: true,
             name: true,
             email: true,
-            phone: true
+            phone: true,
+            image: true
           }
         }
       },
       orderBy: {
         createdAt: 'desc'
-      }
+      },
+      take: 100
     })
 
-    console.log('Found orders:', orders.length)
-    return NextResponse.json({ orders })
+    return NextResponse.json({ orders }, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
+    })
   } catch (error) {
-    console.error('Error fetching orders:', error)
-    return NextResponse.json({ 
-      error: "Failed to fetch orders",
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 })
   }
 }
 
@@ -58,30 +68,34 @@ export async function PATCH(request: Request) {
     if (status) updateData.status = status
     if (billUrl) updateData.billUrl = billUrl
     
-    console.log('Updating order:', orderId, 'with data:', updateData)
-    
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: updateData,
-      include: {
+      select: {
+        id: true,
+        userId: true,
+        total: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        billUrl: true,
+        paymentMethod: true,
+        deliveryDate: true,
+        items: true,
+        address: true,
         user: {
           select: {
             id: true,
             name: true,
             email: true,
-            phone: true
+            phone: true,
+            image: true
           }
         }
       }
     })
-
-    console.log('Order updated successfully:', updatedOrder.id)
     return NextResponse.json({ order: updatedOrder })
   } catch (error) {
-    console.error('Error updating order:', error)
-    return NextResponse.json({ 
-      error: "Failed to update order",
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
   }
 }

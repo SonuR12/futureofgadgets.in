@@ -60,6 +60,7 @@ type Order = {
     name: string | null;
     email: string;
     phone: string | null;
+    image?: string;
   };
   items: {
     productId: string;
@@ -111,19 +112,14 @@ export default function AdminOrdersPage() {
     }
     const fetchOrders = async () => {
       try {
-        const response = await fetch("/api/admin/orders", {
-          cache: 'no-store'
-        });
+        const response = await fetch("/api/admin/orders");
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch orders");
+          throw new Error("Failed to fetch orders");
         }
         const data = await response.json();
-        console.log('Fetched orders:', data);
         setOrders(data.orders || []);
       } catch (err: any) {
-        console.error('Fetch orders error:', err);
-        toast.error(`Failed to load orders: ${err.message}`);
+        toast.error("Failed to load orders");
       } finally {
         setLoading(false);
       }
@@ -202,17 +198,19 @@ export default function AdminOrdersPage() {
         });
       }
 
-      // Upload using same API as products
-      const uploadResponse = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Upload using the same API as products
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ images: [base64] }),
       });
 
-      const uploadResult = await uploadResponse.json();
-      if (!uploadResult.success) {
-        throw new Error(uploadResult.error || 'Upload failed');
-      }
+      const uploadResult = await uploadRes.json();
+      if (!uploadResult.success) throw new Error(uploadResult.error);
+
+      const billUrl = uploadResult.files[0];
 
       // Update order with bill URL
       const response = await fetch("/api/admin/orders", {
@@ -220,7 +218,7 @@ export default function AdminOrdersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           orderId: selectedOrder.id, 
-          billUrl: uploadResult.files[0]
+          billUrl: billUrl 
         }),
       });
 
@@ -452,11 +450,37 @@ export default function AdminOrdersPage() {
                 </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="py-8 text-center text-gray-500">
-                      Loading orders...
-                    </TableCell>
-                  </TableRow>
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                          <div className="space-y-2">
+                            <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-2 w-16 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell px-3 sm:px-6 py-4">
+                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 sm:px-6 py-4">
+                        <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-4">
+                        <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 ) : filteredAndSortedOrders.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="py-16 text-center">
@@ -486,16 +510,10 @@ export default function AdminOrdersPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredAndSortedOrders.map((order, i) => {
-                    const isSelected = selectedOrderId === order.id;
-                    return (
+                  filteredAndSortedOrders.map((order, i) => (
                       <TableRow
                         key={order.id}
-                        className={`cursor-pointer ${
-                          isSelected
-                            ? "bg-blue-600 text-white"
-                            : "hover:bg-gray-50"
-                        }`}
+                        className="cursor-pointer hover:bg-gray-50"
                         onClick={() => {
                           setSelectedOrderId(order.id);
                           setSelectedOrder(order);
@@ -507,19 +525,17 @@ export default function AdminOrdersPage() {
                         </TableCell>
                         <TableCell className="px-3 sm:px-6 py-4">
                           <div className="flex items-center gap-2 sm:gap-3">
-                            <div
-                              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
-                                isSelected ? "bg-yellow-400" : "bg-gray-200"
-                              }`}
-                            >
-                              <User
-                                className={
-                                  isSelected
-                                    ? "text-gray-800 h-3 w-3 sm:h-4 sm:w-4"
-                                    : "text-gray-600 h-3 w-3 sm:h-4 sm:w-4"
-                                }
+                            {order.user.image ? (
+                              <img
+                                src={order.user.image}
+                                alt={order.user.name || order.user.email}
+                                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm"
                               />
-                            </div>
+                            ) : (
+                              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-medium text-xs bg-gradient-to-r from-blue-500 to-purple-600">
+                                {(order.user.name || order.user.email).charAt(0).toUpperCase()}
+                              </div>
+                            )}
                             <div className="min-w-0">
                               <div className="text-xs sm:text-sm font-medium truncate">
                                 {order.user.name || order.user.email}
@@ -546,7 +562,7 @@ export default function AdminOrdersPage() {
                           </span>
                         </TableCell>
                         <TableCell className="px-3 sm:px-6 py-4">
-                          <span className="text-xs sm:text-sm font-medium">${order.total.toFixed(2)}</span>
+                          <span className="text-xs sm:text-sm font-medium">₹{order.total.toFixed(2)}</span>
                         </TableCell>
                         <TableCell className="px-3 sm:px-6 py-4">
                           <span
@@ -612,8 +628,8 @@ export default function AdminOrdersPage() {
                           </DropdownMenu>
                         </TableCell>
                       </TableRow>
-                    );
-                  })
+                    )
+                  )
                 )}
               </TableBody>
             </Table>
@@ -1109,7 +1125,7 @@ export default function AdminOrdersPage() {
                         </Select>
                         {updatingDialogStatus && (
                           <div className="flex items-center gap-2 text-blue-600 mt-2">
-                            <Loader2 className="w-12 h-12"/>
+                            <Loader2 className="w-6 h-6 animate-spin"/>
                             {/* <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div> */}
                             <span className="text-sm">Updating...</span>
                           </div>
