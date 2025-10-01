@@ -163,7 +163,7 @@ export default function AdminDashboardPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Today's Orders</span>
+                  <span className="text-gray-600">Today&apos;s Orders</span>
                   <span className="font-semibold text-gray-900">{orders.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
