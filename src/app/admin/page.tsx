@@ -9,6 +9,7 @@ import { Package, ShoppingCart, Users, BarChart3, Settings, Loader2 } from 'luci
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState({
     products: 0,
     orders: 0,
@@ -51,6 +52,8 @@ export default function AdminDashboardPage() {
         })
       } catch (error) {
         console.error('Failed to fetch stats:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
     
@@ -66,7 +69,7 @@ export default function AdminDashboardPage() {
     }
   }, [session, status, router])
 
-  if (status === 'loading') {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -228,7 +231,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tables Section */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mt-6 sm:mt-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-2 mt-6 sm:mt-8">
           {/* Products */}
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
