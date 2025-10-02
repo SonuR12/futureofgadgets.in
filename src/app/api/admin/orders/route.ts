@@ -4,13 +4,13 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
 export async function GET() {
+  const session = await getServerSession(authOptions)
+  
+  if (!session || (session.user?.role !== "admin" && session.user?.email !== "admin@electronic.com")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+  
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session || (session.user?.role !== 'admin' && session.user?.email !== 'admin@electronic.com')) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-    
     const orders = await prisma.order.findMany({
       include: {
         user: {
@@ -23,41 +23,36 @@ export async function GET() {
           }
         }
       },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 100
+      orderBy: { createdAt: 'desc' }
     })
-
-    return NextResponse.json({ orders }, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
-      }
-    })
+    
+    return NextResponse.json({ orders })
   } catch (error) {
+    console.error('Admin orders fetch error:', error)
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 })
   }
 }
 
 export async function PATCH(request: Request) {
+  const session = await getServerSession(authOptions)
+  
+  if (!session || (session.user?.role !== "admin" && session.user?.email !== "admin@electronic.com")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+  
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session || (session.user?.role !== 'admin' && session.user?.email !== 'admin@electronic.com')) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-    
-    const { orderId, status, billUrl } = await request.json()
-    
+    const body = await request.json()
+    const { orderId, status, billUrl } = body
+
     if (!orderId) {
       return NextResponse.json({ error: "Order ID is required" }, { status: 400 })
     }
-    
+
     const updateData: any = {}
     if (status) updateData.status = status
     if (billUrl) updateData.billUrl = billUrl
-    
-    const updatedOrder = await prisma.order.update({
+
+    const order = await prisma.order.update({
       where: { id: orderId },
       data: updateData,
       include: {
@@ -72,8 +67,10 @@ export async function PATCH(request: Request) {
         }
       }
     })
-    return NextResponse.json({ order: updatedOrder })
+
+    return NextResponse.json({ order })
   } catch (error) {
+    console.error('Order update error:', error)
     return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
   }
 }

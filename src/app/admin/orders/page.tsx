@@ -246,35 +246,19 @@ export default function AdminOrdersPage() {
   const handleBillUpload = async (file: File) => {
     if (!selectedOrder) return;
 
-    // Validate file
-    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
-      toast.error("File must be an image or PDF");
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      toast.error("File must be less than 5MB");
+    // Validate file using the same method as products
+    const { validateImageFile } = await import("@/lib/image-utils");
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error || "Invalid file");
       return;
     }
 
     setUploadingBill(true);
     try {
-      let base64: string;
-
-      if (file.type.startsWith("image/")) {
-        // Use same compression method as products
-        const { convertFileToBase64 } = await import("@/lib/image-utils");
-        base64 = await convertFileToBase64(file, 1200, 0.8);
-      } else {
-        // For PDFs, convert directly to base64
-        const reader = new FileReader();
-        base64 = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      }
+      // Use same compression method as products
+      const { convertFileToBase64 } = await import("@/lib/image-utils");
+      const base64 = await convertFileToBase64(file, 1200, 0.8);
 
       // Upload using the same API as products
       const uploadRes = await fetch("/api/upload", {
@@ -970,12 +954,15 @@ export default function AdminOrdersPage() {
                                     src={selectedOrder.billUrl}
                                     alt="Bill"
                                     className="max-w-full h-auto rounded border mx-auto"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = "/placeholder.svg";
+                                    }}
                                   />
                                   <div className="mt-4">
                                     <button
                                       onClick={() => {
-                                        const link =
-                                          document.createElement("a");
+                                        const link = document.createElement("a");
                                         link.href = selectedOrder.billUrl!;
                                         link.download = `bill-${selectedOrder.id}.jpg`;
                                         document.body.appendChild(link);
@@ -1012,7 +999,7 @@ export default function AdminOrdersPage() {
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                         <input
                           type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
+                          accept="image/*"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
