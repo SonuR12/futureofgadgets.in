@@ -18,6 +18,7 @@ import {
   Loader2,
   Filter,
   MoreHorizontal,
+  Clock,
 } from "lucide-react";
 import {
   Table,
@@ -148,6 +149,7 @@ export default function AdminOrdersPage() {
   const [updatingDialogStatus, setUpdatingDialogStatus] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("date-desc");
+  const [statusChangeTime, setStatusChangeTime] = useState<{[key: string]: number}>({});
 
   useEffect(() => {
     if (
@@ -188,6 +190,30 @@ export default function AdminOrdersPage() {
   }
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const statusOrder = ["pending", "shipped", "out-for-delivery", "delivered"];
+    const currentIndex = statusOrder.indexOf(order.status);
+    const newIndex = statusOrder.indexOf(newStatus);
+
+    // Check if trying to revert
+    if (newIndex < currentIndex) {
+      const lastChangeTime = statusChangeTime[orderId] || new Date(order.updatedAt).getTime();
+      const timeSinceUpdate = Date.now() - lastChangeTime;
+      const fiveMinutes = 5 * 60 * 1000;
+
+      if (timeSinceUpdate > fiveMinutes) {
+        toast.error("Cannot revert status after 5 minutes");
+        return;
+      }
+
+      if (currentIndex - newIndex > 1) {
+        toast.error("Cannot revert more than one step at a time");
+        return;
+      }
+    }
+
     setUpdatingOrder(orderId);
     try {
       const response = await fetch("/api/admin/orders", {
@@ -202,6 +228,12 @@ export default function AdminOrdersPage() {
       setOrders((prev) =>
         prev.map((order) => (order.id === orderId ? data.order : order))
       );
+
+      // Track the time of this status change
+      setStatusChangeTime(prev => ({
+        ...prev,
+        [orderId]: Date.now()
+      }));
 
       toast.success("Order status updated successfully");
     } catch (error) {
@@ -301,18 +333,17 @@ export default function AdminOrdersPage() {
 
     // Check if trying to revert
     if (newIndex < currentIndex) {
-      const timeSinceUpdate =
-        Date.now() - new Date(selectedOrder.updatedAt).getTime();
+      const lastChangeTime = statusChangeTime[selectedOrder.id] || new Date(selectedOrder.updatedAt).getTime();
+      const timeSinceUpdate = Date.now() - lastChangeTime;
       const fiveMinutes = 5 * 60 * 1000;
-
-      // Allow only one step back within 5 minutes
-      if (currentIndex - newIndex > 1) {
-        toast.error("Cannot revert more than one step at a time");
-        return;
-      }
 
       if (timeSinceUpdate > fiveMinutes) {
         toast.error("Cannot revert status after 5 minutes");
+        return;
+      }
+
+      if (currentIndex - newIndex > 1) {
+        toast.error("Cannot revert more than one step at a time");
         return;
       }
 
@@ -340,6 +371,12 @@ export default function AdminOrdersPage() {
           order.id === selectedOrder.id ? updatedOrder : order
         )
       );
+
+      // Track the time of this status change
+      setStatusChangeTime(prev => ({
+        ...prev,
+        [selectedOrder.id]: Date.now()
+      }));
 
       toast.success("Order status updated successfully");
     } catch (error) {
@@ -627,6 +664,8 @@ export default function AdminOrdersPage() {
                               ? "bg-yellow-100 text-yellow-800"
                               : order.status === "shipped"
                               ? "bg-blue-100 text-blue-800"
+                              : order.status === "out-for-delivery"
+                              ? "bg-orange-100 text-orange-800"
                               : order.status === "delivered"
                               ? "bg-green-100 text-green-800"
                               : "bg-gray-100 text-gray-800"
@@ -666,6 +705,7 @@ export default function AdminOrdersPage() {
                               }
                               disabled={updatingOrder === order.id}
                             >
+                              <Clock className="h-4 w-4 mr-2" />
                               Pending
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -674,6 +714,7 @@ export default function AdminOrdersPage() {
                               }
                               disabled={updatingOrder === order.id}
                             >
+                              <Package className="h-4 w-4 mr-2" />
                               Shipped
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -682,6 +723,7 @@ export default function AdminOrdersPage() {
                               }
                               disabled={updatingOrder === order.id}
                             >
+                              <Truck className="h-4 w-4 mr-2" />
                               Out for Delivery
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -690,6 +732,7 @@ export default function AdminOrdersPage() {
                               }
                               disabled={updatingOrder === order.id}
                             >
+                              <CheckCircle className="h-4 w-4 mr-2" />
                               Delivered
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -731,6 +774,8 @@ export default function AdminOrdersPage() {
                       ? "bg-green-100 text-green-800"
                       : selectedOrder.status === "shipped"
                       ? "bg-blue-100 text-blue-800"
+                      : selectedOrder.status === "out-for-delivery"
+                      ? "bg-orange-100 text-orange-800"
                       : selectedOrder.status === "pending"
                       ? "bg-yellow-100 text-yellow-800"
                       : selectedOrder.status === "processing"
