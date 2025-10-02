@@ -19,6 +19,7 @@ import {
   Filter,
   MoreHorizontal,
   Clock,
+  Trash2,
 } from "lucide-react";
 import {
   Table,
@@ -44,6 +45,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -145,6 +157,7 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
   const [uploadingBill, setUploadingBill] = useState(false);
+  const [removingBill, setRemovingBill] = useState(false);
   const [showBillDialog, setShowBillDialog] = useState(false);
   const [updatingDialogStatus, setUpdatingDialogStatus] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -164,12 +177,20 @@ export default function AdminOrdersPage() {
       try {
         const response = await fetch("/api/admin/orders");
         if (!response.ok) {
-          throw new Error("Failed to fetch orders");
+          let errorMessage = "Failed to fetch orders";
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch {
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          }
+          throw new Error(errorMessage);
         }
         const data = await response.json();
         setOrders(data.orders || []);
       } catch (err: any) {
-        toast.error("Failed to load orders");
+        console.error("Orders fetch error:", err);
+        toast.error(`Failed to load orders: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -313,6 +334,42 @@ export default function AdminOrdersPage() {
       toast.error(`Failed to upload bill: ${error.message}`);
     } finally {
       setUploadingBill(false);
+    }
+  };
+
+  const handleBillRemove = async () => {
+    if (!selectedOrder) return;
+
+    setRemovingBill(true);
+    try {
+      const response = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          billUrl: null,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to remove bill");
+      }
+
+      const data = await response.json();
+      const updatedOrder = { ...data.order, billUrl: null };
+
+      setSelectedOrder(updatedOrder);
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === selectedOrder.id ? updatedOrder : order
+        )
+      );
+
+      toast.success("Bill removed successfully");
+    } catch (error: any) {
+      toast.error(`Failed to remove bill: ${error.message}`);
+    } finally {
+      setRemovingBill(false);
     }
   };
 
@@ -1001,6 +1058,34 @@ export default function AdminOrdersPage() {
                             <Download className="h-4 w-4" />
                             Download
                           </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                disabled={removingBill}
+                                className="border border-red-600 bg-red-100 text-red-700 px-3 py-1 hover:bg-red-200 rounded-md text-sm cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                {removingBill ? "Removing..." : "Remove"}
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove Bill</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove the bill for order #{selectedOrder.id}? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={handleBillRemove}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Remove Bill
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                     ) : (
