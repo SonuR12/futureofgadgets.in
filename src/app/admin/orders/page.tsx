@@ -706,14 +706,14 @@ export default function AdminOrdersPage() {
 
       {/* Order Details Dialog */}
       <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
-        <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Order Details - #{selectedOrder?.id}</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="py-0">
               {/* Order Header */}
-              <div className="flex items-center gap-4 text-sm text-gray-600 pt-0 pb-3 pl-1">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 pt-0 pb-3 pl-1">
                 <span>
                   Placed on{" "}
                   {new Date(selectedOrder.createdAt).toLocaleDateString(
@@ -743,10 +743,10 @@ export default function AdminOrdersPage() {
                 </span>
               </div>
 
-              <div className="grid lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column - Order Items */}
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-white rounded-xl border border-gray-100 p-6">
+                  <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-6">
                     <h3 className="text-xl font-semibold text-gray-900 mb-6">
                       Order Items ({selectedOrder.items.length})
                     </h3>
@@ -754,7 +754,7 @@ export default function AdminOrdersPage() {
                       {selectedOrder.items.map((item, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                          className="flex items-center gap-2 sm:gap-4 p-2 sm:p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                           onClick={() =>
                             window.open(`/products/${item.productId}`, "_blank")
                           }
@@ -793,9 +793,9 @@ export default function AdminOrdersPage() {
                   </div>
 
                   {/* Right Column - Details */}
-                  <div className="space-x-6 flex w-full">
+                  <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-4 sm:space-y-0 w-full">
                     {/* Customer Details */}
-                    <div className="bg-white rounded-xl border border-gray-100 p-6 w-86">
+                    <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-6 w-full sm:w-86">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">
                         Account Details
                       </h3>
@@ -822,7 +822,7 @@ export default function AdminOrdersPage() {
                     </div>
 
                     {/* Delivery Address */}
-                    <div className="bg-white rounded-xl border border-gray-100 p-6 w-96">
+                    <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-6 w-full sm:w-96">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">
                         Delivery Details
                       </h3>
