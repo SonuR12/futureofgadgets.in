@@ -148,7 +148,7 @@ export default function AdminUsersPage() {
     <div className="bg-gray-50 min-h-screen py-4 sm:py-10">
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
-        <div className="mb-6 sm:mb-10 flex flex-col gap-4 px-4 sm:px-6">
+        <div className="mb-6 flex flex-col gap-4 px-4 sm:px-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
               <Users className="h-6 w-6 sm:h-9 sm:w-9 text-blue-600" />
@@ -172,7 +172,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10 px-4 sm:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 px-4 sm:px-6">
           {loading ? (
             [...Array(3)].map((_, i) => (
               <div key={i} className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
