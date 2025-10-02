@@ -54,7 +54,7 @@ export async function GET() {
     })
     
     // Transform the result to match expected format
-    const formattedOrders = (result.cursor?.firstBatch || []).map((order: any) => ({
+    const formattedOrders = ((result as any).cursor?.firstBatch || []).map((order: any) => ({
       id: order._id.$oid || order._id,
       userId: order.userId.$oid || order.userId,
       items: order.items,
@@ -128,11 +128,11 @@ export async function PATCH(request: Request) {
       limit: 1
     })
     
-    if (!orderResult.cursor?.firstBatch?.length) {
+    if (!(orderResult as any).cursor?.firstBatch?.length) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
     
-    const orderData = orderResult.cursor!.firstBatch![0]
+    const orderData = (orderResult as any).cursor.firstBatch[0]
     
     // Get user data
     const userResult = await prisma.$runCommandRaw({
@@ -141,7 +141,7 @@ export async function PATCH(request: Request) {
       limit: 1
     })
     
-    const userData = userResult.cursor!.firstBatch![0]
+    const userData = (userResult as any).cursor.firstBatch[0]
     
     const order = {
       id: orderData._id.$oid || orderData._id,
