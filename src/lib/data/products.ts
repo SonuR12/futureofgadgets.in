@@ -1,47 +1,24 @@
 import type { Product } from "@/lib/types"
 
 export const CATEGORIES = [
+  "Show All",
   "Laptops",
-  "Desktops", 
-  "Monitors",
+  "Laptop Accessories",
+  "Chargers", 
   "Keyboards",
   "Mouse",
-  "Headphones",
-  "Speakers",
-  "Webcams",
-  "Storage",
-  "RAM",
-  "Graphics Cards",
-  "Processors",
-  "Motherboards",
-  "Power Supply",
-  "Cooling",
-  "Cases",
-  "Cables",
-  "Printers",
-  "Tablets",
-  "Smartphones"
+  "Monitors",
 ] as const
 
 // Default category images
 export const CATEGORY_IMAGES: Record<string, string> = {
-  Laptops: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
-  Desktops: "https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=400&h=300&fit=crop",
-  Monitors: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop",
-  Keyboards: "https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=400&h=300&fit=crop",
-  Mouse: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop",
-  Storage: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&h=300&fit=crop",
-  RAM: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-  "Graphics Cards": "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&h=300&fit=crop",
-  Processors: "https://images.unsplash.com/photo-1555617981-dac3880eac6e?w=400&h=300&fit=crop",
-  Motherboards: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400&h=300&fit=crop",
-  "Power Supply": "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=300&fit=crop",
-  Cooling: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&h=300&fit=crop",
-  Cases: "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=400&h=300&fit=crop",
-  Cables: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-  Printers: "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop",
-  Tablets: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
-  Smartphones: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop"
+  "Show All": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop",
+  "Laptops": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
+  "Laptop Accessories": "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=400&h=300&fit=crop",
+  "Chargers": "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=300&fit=crop",
+  "Keyboards": "https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=400&h=300&fit=crop",
+  "Mouse": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop",
+  "Monitors": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop"
 }
 
 export const products: Product[] = [

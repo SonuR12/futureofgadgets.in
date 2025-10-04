@@ -172,13 +172,13 @@ export function Navbar() {
                       </div>
                     </Link>
                     <Link
-                      href="/category/desktops"
+                      href="/category/laptop-accessories"
                       onClick={() => setShowCategories(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
                         <svg
-                          className="w-4 h-4 text-green-600 dark:text-green-400"
+                          className="w-4 h-4 text-red-600 dark:text-red-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -187,25 +187,25 @@ export function Navbar() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                           />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Desktops</p>
+                        <p className="font-medium text-sm">Laptop Accessories</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Workstations & PCs
+                          Bags, Stands & More
                         </p>
                       </div>
                     </Link>
                     <Link
-                      href="/category/monitors"
+                      href="/category/chargers"
                       onClick={() => setShowCategories(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
                         <svg
-                          className="w-4 h-4 text-purple-600 dark:text-purple-400"
+                          className="w-4 h-4 text-yellow-600 dark:text-yellow-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -214,14 +214,14 @@ export function Navbar() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
                           />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Monitors</p>
+                        <p className="font-medium text-sm">Chargers</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          4K & Gaming Displays
+                          Laptop & Phone Chargers
                         </p>
                       </div>
                     </Link>
@@ -253,13 +253,13 @@ export function Navbar() {
                       </div>
                     </Link>
                     <Link
-                      href="/category/headphones"
+                      href="/category/mouse"
                       onClick={() => setShowCategories(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
                         <svg
-                          className="w-4 h-4 text-red-600 dark:text-red-400"
+                          className="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -268,14 +268,47 @@ export function Navbar() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                            d="M12 18.5c3.5 0 6.5-1.5 6.5-4.5V8c0-3-3-6-6.5-6S5.5 5 5.5 8v6c0 3 3 4.5 6.5 4.5z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v4"
                           />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Headphones</p>
+                        <p className="font-medium text-sm">Mouse</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           Wireless & Gaming
+                        </p>
+                      </div>
+                    </Link>
+                    <Link
+                      href="/category/monitors"
+                      onClick={() => setShowCategories(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                        <svg
+                          className="w-4 h-4 text-purple-600 dark:text-purple-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Monitors</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          4K & Gaming Displays
                         </p>
                       </div>
                     </Link>
@@ -373,13 +406,13 @@ export function Navbar() {
                       </div>
                     </Link>
                     <Link
-                      href="/category/desktops"
+                      href="/category/laptop-accessories"
                       onClick={() => setShowCategories(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
                         <svg
-                          className="w-4 h-4 text-green-600 dark:text-green-400"
+                          className="w-4 h-4 text-red-600 dark:text-red-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -388,25 +421,25 @@ export function Navbar() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                           />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Desktops</p>
+                        <p className="font-medium text-sm">Laptop Accessories</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Workstations & PCs
+                          Bags, Stands & More
                         </p>
                       </div>
                     </Link>
                     <Link
-                      href="/category/monitors"
+                      href="/category/chargers"
                       onClick={() => setShowCategories(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
                         <svg
-                          className="w-4 h-4 text-purple-600 dark:text-purple-400"
+                          className="w-4 h-4 text-yellow-600 dark:text-yellow-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -415,14 +448,14 @@ export function Navbar() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
                           />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Monitors</p>
+                        <p className="font-medium text-sm">Chargers</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          4K & Gaming Displays
+                          Laptop & Phone Chargers
                         </p>
                       </div>
                     </Link>
@@ -454,13 +487,13 @@ export function Navbar() {
                       </div>
                     </Link>
                     <Link
-                      href="/category/headphones"
+                      href="/category/mouse"
                       onClick={() => setShowCategories(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
                         <svg
-                          className="w-4 h-4 text-red-600 dark:text-red-400"
+                          className="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -469,14 +502,47 @@ export function Navbar() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                            d="M12 18.5c3.5 0 6.5-1.5 6.5-4.5V8c0-3-3-6-6.5-6S5.5 5 5.5 8v6c0 3 3 4.5 6.5 4.5z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v4"
                           />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Headphones</p>
+                        <p className="font-medium text-sm">Mouse</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           Wireless & Gaming
+                        </p>
+                      </div>
+                    </Link>
+                    <Link
+                      href="/category/monitors"
+                      onClick={() => setShowCategories(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                        <svg
+                          className="w-4 h-4 text-purple-600 dark:text-purple-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Monitors</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          4K & Gaming Displays
                         </p>
                       </div>
                     </Link>
@@ -530,7 +596,7 @@ export function Navbar() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-1 md:gap-3">
+        <div className="flex items-center gap-1 sm:gap-3 ">
           <div className="hidden md:flex items-center relative">
             <form
               onSubmit={(e) => {
@@ -538,7 +604,7 @@ export function Navbar() {
                 if (searchQuery.trim()) {
                   setShowSuggestions(false);
                   const query = searchQuery.trim().toLowerCase();
-                  const categories = ['laptops', 'desktops', 'monitors', 'keyboards', 'headphones'];
+                  const categories = ['laptops', 'laptop-accessories', 'chargers', 'keyboards', 'mouse', 'monitors'];
                   const matchedCategory = categories.find(cat => cat.includes(query) || query.includes(cat));
                   
                   if (matchedCategory) {
@@ -581,7 +647,7 @@ export function Navbar() {
                     setSelectedIndex(-1);
                   }
                 }}
-                placeholder="Search laptops, keyboards, monitors..."
+                placeholder="Search laptops, keyboards, chargers..."
                 className="w-80 pr-10"
               />
               <Button
@@ -655,10 +721,10 @@ export function Navbar() {
             <DropdownMenuTrigger asChild className="cursor-pointer">
               <Button
                 variant="ghost"
-                className="relative p-0 h-8 w-8 md:h-10 md:w-10 rounded-full border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
+                className="relative sm:-ml-2 p-0 h-8 w-9 md:h-10 md:w-10 rounded-full border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
               >
                 {status === "loading" ? (
-                  <div className="h-9 w-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center animate-pulse">
+                  <div className="h-8 w-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center animate-pulse">
                     <User className="h-4 w-4 text-gray-400" />
                   </div>
                 ) : session?.user?.image ? (
@@ -670,8 +736,8 @@ export function Navbar() {
                     className="h-8 w-8 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <span className="text-xs md:text-sm font-semibold text-white">
+                  <div className="h-8 w-9 md:h-9 md:w-9 text-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-xs md:text-sm font-semibold text-white w-8 h-8 text-center flex items-center justify-center">
                       {session?.user?.name?.charAt(0).toUpperCase() || "U"}
                     </span>
                   </div>
@@ -962,7 +1028,7 @@ export function Navbar() {
             if (searchQuery.trim()) {
               setShowSuggestions(false);
               const query = searchQuery.trim().toLowerCase();
-              const categories = ['laptops', 'desktops', 'monitors', 'keyboards', 'headphones'];
+              const categories = ['laptops', 'laptop-accessories', 'chargers', 'keyboards', 'mouse', 'monitors'];
               const matchedCategory = categories.find(cat => cat.includes(query) || query.includes(cat));
               
               if (matchedCategory) {
@@ -1005,7 +1071,7 @@ export function Navbar() {
                 setSelectedIndex(-1);
               }
             }}
-            placeholder="Search laptops, keyboards, monitors.."
+            placeholder="Search laptops, keyboards, chargers.."
             className="w-full h-12 pl-10 pr-12 text-base rounded-lg border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 bg-gray-50 dark:bg-gray-800"
           />
 

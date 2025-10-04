@@ -55,7 +55,7 @@ const HeaderSlider = () => {
         {sliderData.map((slide, index) => (
           <div
             key={slide.id}
-            className="flex flex-col-reverse md:flex-row items-center justify-between bg-[#E6E9F2] py-8 md:px-14 px-5 mt-6 rounded-xl min-w-full"
+            className="flex flex-col-reverse md:flex-row items-center justify-between bg-[#E6E9F2] py-8 md:px-14 px-5 mt-6 sm:rounded-xl min-w-full"
           >
             <div className="md:pl-8 mt-10 md:mt-0">
               <p className="md:text-base text-orange-600 pb-1">{slide.offer}</p>
@@ -74,7 +74,7 @@ const HeaderSlider = () => {
             </div>
             <div className="flex items-center flex-1 justify-center">
               <div
-                className="md:w-72 w-48 h-48 md:h-72 bg-contain bg-center bg-no-repeat"
+                className="md:w-72 w-48 h-10 sm:h-48 md:h-72 bg-contain bg-center bg-no-repeat"
                 // style={{backgroundImage: `url(${slide.imgSrc})`}}
               />
             </div>
@@ -82,7 +82,7 @@ const HeaderSlider = () => {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-8">
+      <div className="hidden sm:flex items-center justify-center gap-2 mt-8">
         {sliderData.map((_, index) => (
           <div
             key={index}
