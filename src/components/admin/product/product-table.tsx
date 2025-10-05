@@ -492,7 +492,7 @@ export default function ProductTable() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name, type, or description"
           />
-          <Button variant="secondary" onClick={() => setQuery("")} className="w-full sm:w-auto">
+          <Button variant="secondary" onClick={() => setQuery("")} className="w-full sm:w-auto border hover:bg-gray-200">
             Clear
           </Button>
         </div>
@@ -632,7 +632,7 @@ export default function ProductTable() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   {categories.sort().map((type) => (
-                                    <SelectItem key={type} value={type}>
+                                    <SelectItem key={type} value={type} className="-ml-5">
                                       {type}
                                     </SelectItem>
                                   ))}
