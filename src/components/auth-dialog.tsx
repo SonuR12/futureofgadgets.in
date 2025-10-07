@@ -96,7 +96,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
           toast.success(data.message);
           setIsVerifyEmail(true);
           setIsSignUp(false);
-          setResendTimer(120);
+          setResendTimer(60);
         } else {
           toast.error(data.error || 'Failed to create account');
         }
@@ -151,7 +151,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
         toast.success('Verification code sent to your email!');
         setIsForgotPassword(false);
         setIsResetPassword(true);
-        setResendTimer(120);
+        setResendTimer(60);
       } else if (data.error === 'User not found') {
         toast.error('User not found. Please sign up first.');
         setIsForgotPassword(false);
