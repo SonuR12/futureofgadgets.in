@@ -134,7 +134,7 @@ export default function ProfilePage() {
     },
     {
       label: 'Phone',
-      value: loadingProfile ? <span className="text-red-500">Loading...</span> : (phone || 'Not provided'),
+      value: loadingProfile ? <span className="text-gray-500">loading...</span> : (phone || 'Not provided'),
       editable: true as const,
       editing: editingPhone,
       setEditing: setEditingPhone,
@@ -146,7 +146,7 @@ export default function ProfilePage() {
     },
     {
       label: 'Address',
-      value: loadingProfile ? <span className="text-red-500">Loading...</span> : (address || 'Not provided'),
+      value: loadingProfile ? <span className="text-gray-500">loading...</span> : (address || 'Not provided'),
       editable: true as const,
       editing: editingAddress,
       setEditing: setEditingAddress,
@@ -263,7 +263,7 @@ export default function ProfilePage() {
             </div>
             <div className="space-y-3">
               {loadingOrders ? (
-                <div className='text-red-500'>
+                <div className='text-gray-500'>
                   loading...
                 {/* // <div className="text-center py-4 flex items-center justify-center"> */}
                   {/* <Loader2 className='h-8 w-8 animate-spin text-blue-600'/> */}
