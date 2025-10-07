@@ -500,6 +500,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                   <div className="relative">
                     <Input
                       id="password"
+                      autoComplete="off"
                       type={showPassword ? "text" : "password"}
                       placeholder={
                         isSignUp
