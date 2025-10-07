@@ -6,13 +6,10 @@ export async function POST(req: Request) {
   try {
     const { email } = await req.json()
 
-    // check user with composite unique (email + provider)
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: {
-        email_provider: {
-          email,
-          provider: 'credentials' // or "google", "github" etc depending on login flow
-        }
+        email,
+        provider: 'credentials'
       }
     })
 
