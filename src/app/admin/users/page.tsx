@@ -12,6 +12,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  ShieldAlert,
 } from "lucide-react";
 import {
   Table,
@@ -24,6 +25,17 @@ import {
 import Loading from "@/app/loading";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type UserType = {
   id: string;
@@ -40,6 +52,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [sortField, setSortField] = useState<
     "name" | "email" | "role" | "createdAt"
   >("name");
@@ -100,7 +113,7 @@ export default function AdminUsersPage() {
           )
         );
         toast.success(
-          `User role updated to ${newRole}. ${newRole === "admin" ? "User now has admin access." : "Admin access removed."}`
+          `${newRole === "admin" ? "User now has admin access." : "Admin access removed."}`
         );
       } else {
         const errorData = await response.json();
@@ -387,26 +400,69 @@ export default function AdminUsersPage() {
                         ) : updatingUser === user.id ? (
                           <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin text-gray-500" />
                         ) : (
-                          <button
-                            onClick={() =>
-                              handleRoleChange(
-                                user.id,
-                                user.role === "admin" ? "user" : "admin"
-                              )
-                            }
-                            className={`px-2 sm:px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                              user.role === "admin"
-                                ? "bg-red-100 text-red-700 hover:bg-red-200"
-                                : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                            }`}
-                          >
-                            <span className="hidden sm:inline">
-                              {user.role === "admin" ? "Remove Admin" : "Make Admin"}
-                            </span>
-                            <span className="sm:hidden">
-                              {user.role === "admin" ? "Remove" : "Admin"}
-                            </span>
-                          </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                onClick={() => setSelectedUser(user)}
+                                className={`px-2 sm:px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                  user.role === "admin"
+                                    ? "bg-red-100 text-red-700 hover:bg-red-200"
+                                    : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                }`}
+                              >
+                                <span className="hidden sm:inline">
+                                  {user.role === "admin" ? "Remove Admin" : "Make Admin"}
+                                </span>
+                                <span className="sm:hidden">
+                                  {user.role === "admin" ? "Remove" : "Admin"}
+                                </span>
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="flex items-center gap-2">
+                                  <ShieldAlert className="h-5 w-5 text-orange-600" />
+                                  {user.role === "admin" ? "Remove Admin Access" : "Grant Admin Access"}
+                                </AlertDialogTitle>
+                                <AlertDialogDescription asChild>
+                                  <div className="text-left text-sm text-muted-foreground">
+                                    {user.role === "admin" ? (
+                                      <>
+                                        <p>Remove admin access from <strong className="text-black">{user.name}</strong> ({user.email})?</p>
+                                        <p className="mt-2 font-semibold text-black">They will lose access to:</p>
+                                        <ul className="list-disc list-inside mt-2">
+                                          <li>Admin dashboard</li>
+                                          <li>User management</li>
+                                          <li>Order management</li>
+                                          <li>Product management</li>
+                                        </ul>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <p>Grant admin access to <strong className="text-black">{user.name}</strong> ({user.email})?</p>
+                                        <p className="mt-2 font-semibold text-black">They will gain access to:</p>
+                                        <ul className="list-disc list-inside mt-2">
+                                          <li>Admin dashboard</li>
+                                          <li>User management</li>
+                                          <li>Order management</li>
+                                          <li>Product management</li>
+                                        </ul>
+                                      </>
+                                    )}
+                                  </div>
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleRoleChange(user.id, user.role === "admin" ? "user" : "admin")}
+                                  className={user.role === "admin" ? "bg-red-600 hover:bg-red-700 cursor-pointer" : "bg-blue-600 hover:bg-blue-700 cursor-pointer"}
+                                >
+                                  {user.role === "admin" ? "Remove Admin" : "Make Admin"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
                       </TableCell>
                     </TableRow>
