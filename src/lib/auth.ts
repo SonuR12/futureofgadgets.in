@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           if (admin.password && await bcrypt.compare(credentials.password, admin.password)) {
-            return { id: admin.id, email: admin.email, name: admin.name, role: admin.role }
+            return { id: admin.id, email: admin.email, name: admin.name || 'Admin', role: admin.role, emailVerified: true }
           }
           return null
         }
@@ -53,7 +53,7 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password)
         if (!isValid) return null
 
-        return { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified }
+        return { id: user.id, email: user.email, name: user.name || 'User', role: user.role, emailVerified: user.emailVerified }
       }
     })
   ],
