@@ -700,7 +700,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
             className="hidden md:flex items-center justify-center text-center text-7xl font-bold tracking-wide relative overflow-hidden"
             style={{ 
               fontFamily: "'Great Vibes', cursive",
-              backgroundImage: "url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80')",
+              backgroundImage: "url('/authImage.jpeg')",
               backgroundSize: "cover",
               backgroundPosition: "center"
             }}
