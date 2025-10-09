@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Package, Truck, CheckCircle, Clock, Eye, Download } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -248,7 +249,7 @@ export default function OrdersPage() {
                                           }}
                                         />
                                         <div className="flex-1 min-w-0">
-                                          <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-1 line-clamp-2">{item.name}</h4>
+                                          <Link href={`/products/${item.name?.toLowerCase().replace(/\s+/g, '-')}`} className="text-sm sm:text-base font-medium text-gray-900 mb-1 line-clamp-2 hover:text-blue-600 block">{item.name}</Link>
                                           <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">Qty: {item.qty}</p>
                                           <p className="text-base sm:text-lg font-semibold">₹{item.price.toLocaleString()}</p>
                                         </div>
