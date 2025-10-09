@@ -896,7 +896,7 @@ export function Navbar() {
                   </div>
                 </>
               ) : (
-                <div className="p-4">
+                <div className="px-2 pb-2 pt-4">
                   <div className="text-center mb-4">
                     <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-3">
                       <User className="h-8 w-8 text-white" />
