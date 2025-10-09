@@ -168,7 +168,7 @@ function SearchContent() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Search Results</h1>
-                <p className="text-gray-600">{results.length} products found for <span className="font-semibold">"{query}"</span></p>
+                <p className="text-gray-600">{results.length} products found for <span className="font-semibold">&quot;{query}&quot;</span></p>
               </div>
               {results.length > 0 && (
                 <DropdownMenu>
@@ -275,10 +275,10 @@ function SearchContent() {
             <div className="text-center">
               <div className="text-7xl mb-6">🔍</div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                No results found for "{query}"
+                No results found for &quot;{query}&quot;
               </h2>
               <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                We couldn't find any products matching your search. Try different keywords or browse our categories.
+                We couldn&apos;t find any products matching your search. Try different keywords or browse our categories.
               </p>
               <Link href="/products" className="inline-block px-8 py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors">
                 Browse All Products

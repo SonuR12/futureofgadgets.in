@@ -167,7 +167,7 @@ export default function ProductPage() {
       <div className="text-center">
         <div className="text-6xl mb-4">📦</div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h2>
-        <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
+        <p className="text-gray-600 mb-6">The product you&apos;re looking for doesn&apos;t exist.</p>
         <button 
           onClick={() => router.push('/')}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -468,7 +468,7 @@ export default function ProductPage() {
               <li className="flex gap-2"><span className="text-green-600">✓</span> Low maintenance with easy cleaning and care</li>
             </ul>
             
-            <h3 className="text-lg font-semibold mb-3 mt-6">What's in the Box</h3>
+            <h3 className="text-lg font-semibold mb-3 mt-6">What&apos;s in the Box</h3>
             <ul className="space-y-2 text-gray-700">
               <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x {product.name}</li>
               <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x User Manual</li>
