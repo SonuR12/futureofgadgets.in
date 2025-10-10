@@ -545,7 +545,7 @@ export function Navbar() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-1 md:gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           <div className="hidden md:flex items-center relative">
             <form
               onSubmit={(e) => {
@@ -658,14 +658,14 @@ export function Navbar() {
             </Button>
           </Link>
 
-          <DropdownMenu>
+<DropdownMenu>
             <DropdownMenuTrigger asChild className="cursor-pointer">
               <Button
                 variant="ghost"
-                className="relative p-0 h-8 w-8 md:h-10 md:w-10 rounded-full border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
+                className="relative sm:-ml-2 p-0 h-8 w-9 md:h-10 md:w-10 rounded-full border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
               >
                 {status === "loading" ? (
-                  <div className="h-9 w-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center animate-pulse">
+                  <div className="h-8 w-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center animate-pulse">
                     <User className="h-4 w-4 text-gray-400" />
                   </div>
                 ) : session?.user?.image ? (
@@ -677,8 +677,8 @@ export function Navbar() {
                     className="h-8 w-8 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <span className="text-xs md:text-sm font-semibold text-white">
+                  <div className="h-8 w-9 md:h-9 md:w-9 text-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-xs md:text-sm font-semibold text-white w-8 h-8 text-center flex items-center justify-center">
                       {session?.user?.name?.charAt(0).toUpperCase() || "U"}
                     </span>
                   </div>
@@ -878,7 +878,7 @@ export function Navbar() {
                   </div>
                 </>
               ) : (
-                <div className="px-2 pb-2 pt-4">
+                <div className="p-4">
                   <div className="text-center mb-4">
                     <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-3">
                       <User className="h-8 w-8 text-white" />
@@ -956,6 +956,7 @@ export function Navbar() {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+
 
           {/* <ThemeToggle /> */}
         </div>
