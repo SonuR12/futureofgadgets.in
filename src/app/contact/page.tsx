@@ -133,7 +133,7 @@ export default function ContactPage() {
                 <AccordionItem value="item-2">
                   <AccordionTrigger className="text-left">What is your return policy?</AccordionTrigger>
                   <AccordionContent>
-                    We offer 30-day returns on most items. Products must be in original condition with all packaging and accessories.
+                    We offer 7-day returns on most items. Products must be in original condition with all packaging and accessories.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">

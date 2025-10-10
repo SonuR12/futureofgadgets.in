@@ -60,24 +60,14 @@ export function Navbar() {
   }, []);
 
   const fetchSuggestions = async (query: string) => {
-    if (query.length < 1) {
+    if (query.length < 2) {
       setSuggestions([]);
       return;
     }
     try {
-      const response = await fetch("/api/products");
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`);
       const products = await response.json();
-      const queryLower = query.toLowerCase();
-      
-      // Filter products by name, category, and brand
-      const productMatches = products.filter(
-        (product: any) =>
-          product.name.toLowerCase().includes(queryLower) ||
-          product.category.toLowerCase().includes(queryLower) ||
-          product.brand?.toLowerCase().includes(queryLower)
-      ).slice(0, 6);
-      
-      setSuggestions(productMatches);
+      setSuggestions(products);
     } catch (error) {
       setSuggestions([]);
     }
@@ -86,7 +76,7 @@ export function Navbar() {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchSuggestions(searchQuery);
-    }, 300);
+    }, 150);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
@@ -562,15 +552,7 @@ export function Navbar() {
                 e.preventDefault();
                 if (searchQuery.trim()) {
                   setShowSuggestions(false);
-                  const query = searchQuery.trim().toLowerCase();
-                  const categories = ['laptops', 'desktops', 'monitors', 'keyboards', 'headphones'];
-                  const matchedCategory = categories.find(cat => cat.includes(query) || query.includes(cat));
-                  
-                  if (matchedCategory) {
-                    router.push(`/category/${matchedCategory}`);
-                  } else {
-                    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-                  }
+                  router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
                 }
               }}
               className="flex items-center relative"
@@ -986,15 +968,7 @@ export function Navbar() {
             e.preventDefault();
             if (searchQuery.trim()) {
               setShowSuggestions(false);
-              const query = searchQuery.trim().toLowerCase();
-              const categories = ['laptops', 'desktops', 'monitors', 'keyboards', 'headphones'];
-              const matchedCategory = categories.find(cat => cat.includes(query) || query.includes(cat));
-              
-              if (matchedCategory) {
-                router.push(`/category/${matchedCategory}`);
-              } else {
-                router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-              }
+              router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
             }
           }}
           className="relative"
