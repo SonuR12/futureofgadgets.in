@@ -222,7 +222,7 @@ function SearchContent() {
         {loading && (
           <div className="flex items-center justify-center min-h-[70vh]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-14 w-14 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
               <p className="text-gray-600 font-medium">Searching products...</p>
             </div>
           </div>
@@ -284,8 +284,8 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-6xl px-4 py-8"><p>Loading...</p></div>}>
+    // <Suspense>
       <SearchContent />
-    </Suspense>
+    // </Suspense>
   );
 }
