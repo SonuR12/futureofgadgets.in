@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     // Check if slug already exists
     const existing = await prisma.product.findUnique({ where: { slug: data.slug } });
     if (existing) {
-      return NextResponse.json({ error: 'Product with this slug already exists' }, { status: 409 });
+      return NextResponse.json({ error: 'Product with this name already exists,' }, { status: 409 });
     }
     
     const product = await prisma.product.create({
