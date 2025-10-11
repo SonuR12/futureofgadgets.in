@@ -104,6 +104,7 @@ export default function ProductTable() {
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [frontImage, setFrontImage] = useState<File | null>(null);
@@ -187,17 +188,36 @@ export default function ProductTable() {
   }, []);
 
   const filtered = useMemo(() => {
+    let result = data;
+    
+    // Apply filter
+    if (activeFilter === "out-of-stock") {
+      result = result.filter(p => p.quantity === 0);
+    } else if (activeFilter !== "all") {
+      result = result.filter(p => p.category.toLowerCase() === activeFilter.toLowerCase());
+    }
+    
+    // Apply search
     const q = query.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.title.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        (p.brand || "").toLowerCase().includes(q)
-    );
-  }, [data, query]);
+    if (q) {
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.title.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          (p.brand || "").toLowerCase().includes(q)
+      );
+    }
+    
+    return result;
+  }, [data, query, activeFilter]);
+  
+
+  
+  const outOfStockCount = useMemo(() => {
+    return data.filter(p => p.quantity === 0).length;
+  }, [data]);
 
   useEffect(() => {
     if (open && !editId) {
@@ -484,6 +504,9 @@ export default function ProductTable() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Filter Tabs */}
+     
+      
       {/* Search + Add button */}
       <div className="flex flex-col md:flex-row px-4 items-start md:items-center justify-between gap-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
@@ -1036,6 +1059,43 @@ export default function ProductTable() {
           </DialogContent>
         </Dialog>
         </div>
+      </div>
+
+
+       <div className="flex text-sm overflow-x-auto gap-3 sm:gap-8 px-4 sm:px-6 lg:px-8 pt-4 border-t border-gray-200">
+        <button
+          onClick={() => setActiveFilter("all")}
+          className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
+            activeFilter === "all"
+              ? "border-blue-600 text-blue-700"
+              : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          }`}
+        >
+          All Products
+        </button>
+        {categories.sort().map((category) => (
+          <button
+            key={category}
+            onClick={() => setActiveFilter(category)}
+            className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
+              activeFilter === category
+                ? "border-blue-600 text-blue-700"
+                : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+        <button
+          onClick={() => setActiveFilter("out-of-stock")}
+          className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
+            activeFilter === "out-of-stock"
+              ? "border-red-500 text-red-600"
+              : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          }`}
+        >
+          Out of Stock ({outOfStockCount})
+        </button>
       </div>
 
       {/* Table */}
