@@ -141,12 +141,10 @@ export function Navbar() {
                   />
                 </div>
 
-                <span className="text-base hidden sm:block md:text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Future of gadgets
-                </span>
+                
 
-                <div className="flex flex-col leading-[1rem] -space-y-1 sm:hidden">
-      <span className="text-xs md:text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <div className="flex flex-col leading-[1rem] -space-y-1 ">
+      <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
         Future of
       </span>
       <span className="text-sm leading-5 md:text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -157,7 +155,7 @@ export function Navbar() {
             </Link>
 
             {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1 xl:ml-2">
               {[
                 { href: "/products", label: "Products" },
                 { href: "/about", label: "About" },
