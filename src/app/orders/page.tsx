@@ -4,9 +4,10 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Package, Truck, CheckCircle, Clock, Eye, Download } from 'lucide-react'
+import { Package, Truck, CheckCircle, Clock, Eye, Download, Star, Loader } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import Loading from '../loading'
+import { toast } from 'sonner'
 
 type Order = {
   id: string
@@ -36,6 +37,8 @@ type Order = {
   paymentMethod: string
   deliveryDate: string
   billUrl?: string
+  razorpayPaymentId?: string
+  razorpayOrderId?: string
   createdAt: string
   updatedAt: string
 }
@@ -53,6 +56,12 @@ export default function OrdersPage() {
   const [cancelReason, setCancelReason] = useState('')
   const [cancelLoading, setCancelLoading] = useState(false)
   const [products, setProducts] = useState<any[]>([])
+  const [showReviewDialog, setShowReviewDialog] = useState(false)
+  const [reviewProduct, setReviewProduct] = useState<any>(null)
+  const [rating, setRating] = useState(0)
+  const [reviewComment, setReviewComment] = useState('')
+  const [reviewLoading, setReviewLoading] = useState(false)
+  const [reviews, setReviews] = useState<any[]>([])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -63,9 +72,10 @@ export default function OrdersPage() {
     
     const fetchOrders = async () => {
       try {
-        const [ordersResponse, productsResponse] = await Promise.all([
+        const [ordersResponse, productsResponse, reviewsResponse] = await Promise.all([
           fetch('/api/orders'),
-          fetch('/api/products')
+          fetch('/api/products'),
+          fetch('/api/reviews')
         ])
         
         if (ordersResponse.ok) {
@@ -76,6 +86,27 @@ export default function OrdersPage() {
         if (productsResponse.ok) {
           const productsData = await productsResponse.json()
           setProducts(productsData)
+        }
+        
+        if (reviewsResponse.ok) {
+          const reviewsData = await reviewsResponse.json()
+            // Merge server reviews with any locally saved submitted markers
+            let merged = reviewsData.reviews || []
+            try {
+              const raw = localStorage.getItem('v0_submitted_reviews')
+              if (raw) {
+                const local = JSON.parse(raw)
+                // filter out duplicates
+                local.forEach((lr: any) => {
+                  if (!merged.some((r: any) => r.orderId === lr.orderId && r.productId === lr.productId)) {
+                    merged.push(lr)
+                  }
+                })
+              }
+            } catch (e) {
+              // ignore localStorage issues
+            }
+            setReviews(merged)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -94,6 +125,76 @@ export default function OrdersPage() {
   }
 
   if (!session) return null
+
+  const canReview = (order: Order, productId: string) => {
+    if (order.status !== 'delivered' && order.status !== 'shipped') return false
+    const statusDate = new Date(order.updatedAt)
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    if (statusDate < threeDaysAgo) return false
+    const alreadyInState = reviews.some(r => r.orderId === order.id && r.productId === productId)
+    if (alreadyInState) return false
+    // Fallback to check localStorage markers in case state hasn't synced yet
+    try {
+      const raw = localStorage.getItem('v0_submitted_reviews')
+      if (raw) {
+        const local = JSON.parse(raw)
+        if (local.some((r: any) => r.orderId === order.id && r.productId === productId)) return false
+      }
+    } catch (e) {
+      // ignore
+    }
+    return true
+  }
+
+  const handleReviewSubmit = async () => {
+    if (!reviewProduct || !rating) {
+      toast.error('Please provide a rating')
+      return
+    }
+    
+    setReviewLoading(true)
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: reviewProduct.orderId,
+          productId: reviewProduct.productId,
+          rating,
+          comment: reviewComment || 'Good product'
+        })
+      })
+      
+      const data = await res.json()
+      
+      if (res.ok) {
+        toast.success('Review submitted successfully')
+        // Use functional updater to avoid stale closures and update UI immediately
+        setReviews((prev) => [...prev, { orderId: reviewProduct.orderId, productId: reviewProduct.productId }])
+        // Persist a simple marker so the review option remains hidden on reload
+        try {
+          const key = 'v0_submitted_reviews'
+          const raw = localStorage.getItem(key)
+          const submitted = raw ? JSON.parse(raw) : []
+          submitted.push({ orderId: reviewProduct.orderId, productId: reviewProduct.productId })
+          localStorage.setItem(key, JSON.stringify(submitted))
+        } catch (e) {
+          // ignore localStorage errors
+        }
+        setShowReviewDialog(false)
+        setRating(0)
+        setReviewComment('')
+        setReviewProduct(null)
+      } else {
+        toast.error(data.error || 'Failed to submit review')
+      }
+    } catch (error) {
+      console.error('Review error:', error)
+      toast.error('Failed to submit review')
+    } finally {
+      setReviewLoading(false)
+    }
+  }
 
 
 
@@ -239,6 +340,7 @@ export default function OrdersPage() {
                                   {selectedOrder.items.map((item, idx) => {
                                     const product = products.find(p => p.id === item.productId)
                                     const imageUrl = product?.frontImage || product?.images?.[0] || '/placeholder-product.jpg'
+                                    const showReview = canReview(selectedOrder, item.productId)
                                     return (
                                       <div key={idx} className="flex gap-3 sm:gap-4 pb-3 sm:pb-4 border-b last:border-b-0">
                                         <img 
@@ -252,7 +354,19 @@ export default function OrdersPage() {
                                         <div className="flex-1 min-w-0">
                                           <Link href={`/products/${item.name?.toLowerCase().replace(/\s+/g, '-')}`} className="text-sm sm:text-base font-medium text-gray-900 mb-1 line-clamp-2 hover:text-blue-600 block">{item.name}</Link>
                                           <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">Qty: {item.qty}</p>
-                                          <p className="text-base sm:text-lg font-semibold">₹{item.price.toLocaleString()}</p>
+                                          <p className="text-base sm:text-lg font-semibold mb-2">₹{item.price.toLocaleString()}</p>
+                                          {showReview && (
+                                            <button
+                                              onClick={() => {
+                                                setReviewProduct({ orderId: selectedOrder.id, productId: item.productId, productName: item.name })
+                                                setShowReviewDialog(true)
+                                              }}
+                                              className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 hover:cursor-pointer transition-colors"
+                                            >
+                                              <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                                              Write a Review
+                                            </button>
+                                          )}
                                         </div>
                                       </div>
                                     )
@@ -370,6 +484,21 @@ export default function OrdersPage() {
                                     <span>Payment Method</span>
                                     <span className="font-medium text-right">{selectedOrder.paymentMethod === 'cod' ? 'Cash On Delivery' : selectedOrder.paymentMethod.toUpperCase()}</span>
                                   </div>
+                                  {selectedOrder.razorpayPaymentId && (
+                                    <>
+                                      <div className="flex justify-between text-xs sm:text-sm text-gray-600 pt-1 sm:pt-2">
+                                        <span>Payment ID</span>
+                                        <span className="font-mono text-xs break-all text-right">{selectedOrder.razorpayPaymentId}</span>
+                                      </div>
+                                      <div className="flex justify-between text-xs sm:text-sm text-gray-600 pt-1 sm:pt-2">
+                                        <span>Transaction ID</span>
+                                        <span className="font-mono text-xs break-all text-right">{selectedOrder.razorpayOrderId}</span>
+                                      </div>
+                                      <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                                        <p className="text-xs text-green-700 font-medium">✓ Payment Verified & Secured</p>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -459,12 +588,68 @@ export default function OrdersPage() {
                             className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
                           >
                             {cancelLoading && (
-                              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
+                             <Loader className="animate-spin h-4 w-4" />
                             )}
                             Cancel Order
+                          </button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  {/* Review Dialog */}
+                  <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Write a Review</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-2">{reviewProduct?.productName}</p>
+                          <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                onClick={() => setRating(star)}
+                                className="focus:outline-none"
+                              >
+                                <Star
+                                  className={`w-8 h-8 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 mb-2 block">Your Review</label>
+                          <textarea
+                            value={reviewComment}
+                            onChange={(e) => setReviewComment(e.target.value)}
+                            placeholder="Share your experience with this product..."
+                            rows={4}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                          />
+                        </div>
+                        <div className="flex gap-3 justify-end">
+                          <button
+                            onClick={() => {
+                              setShowReviewDialog(false)
+                              setRating(0)
+                              setReviewComment('')
+                            }}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded hover:bg-gray-50"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleReviewSubmit}
+                            disabled={!rating || reviewLoading}
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                          >
+                            {reviewLoading && (
+                              <Loader className="animate-spin h-4 w-4" />
+                            )}
+                            Submit Review
                           </button>
                         </div>
                       </div>

@@ -41,7 +41,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null)
   const [showAuthDialog, setShowAuthDialog] = useState(false)
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "netbanking" | "wallet" | "cod">("cod")
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "netbanking" | "wallet" | "cod" | "razorpay">("cod")
   const [showCalendar, setShowCalendar] = useState(false)
 
   const { register, handleSubmit, control, formState: { errors } } = useForm<CheckoutForm>({
@@ -59,14 +59,20 @@ export default function CheckoutPage() {
     }
   })
 
-  const [cardNumber, setCardNumber] = useState("")
-  const [cardExpiry, setCardExpiry] = useState("")
-  const [cardCvv, setCardCvv] = useState("")
-  const [upiId, setUpiId] = useState("")
-  const [selectedBank, setSelectedBank] = useState("")
-  const [selectedWallet, setSelectedWallet] = useState("")
   const [stockStatus, setStockStatus] = useState<{[key: string]: {available: number, requested: number}}>({})
   const [hasStockIssue, setHasStockIssue] = useState(false)
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
+
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.async = true
+    script.onload = () => setRazorpayLoaded(true)
+    document.body.appendChild(script)
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -80,19 +86,22 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("cart") || localStorage.getItem("v0_cart")
+      const raw = localStorage.getItem("v0_cart") || localStorage.getItem("cart")
       if (raw) {
         const parsed = JSON.parse(raw)
-        const normalized: CartItem[] = (parsed?.items || parsed || []).map((it: any) => ({
-          productId: it.productId || it.id || it.slug || it.product?.id,
+        const cartItems = Array.isArray(parsed) ? parsed : (parsed?.items || [])
+        const normalized: CartItem[] = cartItems.map((it: any) => ({
+          productId: it.id || it.productId || it.slug,
           qty: Number(it.qty || it.quantity || 1),
-          title: it.title || it.name || it.product?.title,
-          price: it.price ?? it.product?.price,
-          image: it.image || it.product?.image,
+          title: it.name || it.title,
+          price: Number(it.price || 0),
+          image: it.image || '/placeholder.svg',
         }))
-        setItems(normalized.filter((it) => !!it.productId))
+        setItems(normalized.filter((it) => !!it.productId && it.price > 0))
       }
-    } catch {}
+    } catch (err) {
+      console.error('Cart parsing error:', err)
+    }
   }, [])
 
   useEffect(() => {
@@ -130,10 +139,80 @@ export default function CheckoutPage() {
   const shipping = 0
   const total = subtotal + shipping
 
-  async function submitOrder(data: CheckoutForm) {
-    setError(null)
-    setSubmitting(true)
-    
+  async function handleRazorpayPayment(data: CheckoutForm) {
+    try {
+      const orderRes = await fetch('/api/razorpay/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total,
+          currency: 'INR',
+          receipt: `order_${Date.now()}`
+        })
+      })
+
+      if (!orderRes.ok) throw new Error('Failed to create payment order')
+
+      const { orderId, amount, currency, keyId } = await orderRes.json()
+
+      const options = {
+        key: keyId,
+        amount,
+        currency,
+        name: 'Electronic Store',
+        description: 'Order Payment',
+        order_id: orderId,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await fetch('/api/razorpay/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            })
+
+            if (!verifyRes.ok) throw new Error('Payment verification failed')
+
+            const { verified, paymentId } = await verifyRes.json()
+
+            if (verified) {
+              await createOrder(data, paymentId, orderId)
+            } else {
+              throw new Error('Payment verification failed')
+            }
+          } catch (err: any) {
+            setError(err?.message || 'Payment verification failed')
+            setSubmitting(false)
+          }
+        },
+        prefill: {
+          name: data.fullName,
+          email: data.email || session?.user?.email || '',
+          contact: data.phone
+        },
+        theme: {
+          color: '#2563eb'
+        },
+        modal: {
+          ondismiss: function() {
+            setSubmitting(false)
+            setError('Payment cancelled')
+          }
+        }
+      }
+
+      const razorpay = new (window as any).Razorpay(options)
+      razorpay.open()
+    } catch (err: any) {
+      setError(err?.message || 'Payment failed')
+      setSubmitting(false)
+    }
+  }
+
+  async function createOrder(data: CheckoutForm, razorpayPaymentId?: string, razorpayOrderId?: string) {
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -144,6 +223,8 @@ export default function CheckoutPage() {
           paymentMethod,
           deliveryDate: new Date(data.deliveryDate).toISOString(),
           userEmail: data.email || undefined,
+          razorpayPaymentId,
+          razorpayOrderId
         }),
       })
       if (!res.ok) {
@@ -156,7 +237,25 @@ export default function CheckoutPage() {
       router.push("/checkout/success")
     } catch (err: any) {
       setError(err?.message || "Something went wrong")
-    } finally {
+      throw err
+    }
+  }
+
+  async function submitOrder(data: CheckoutForm) {
+    setError(null)
+    setSubmitting(true)
+    
+    try {
+      if (paymentMethod === 'cod') {
+        await createOrder(data)
+      } else {
+        if (!razorpayLoaded) {
+          throw new Error('Payment gateway not loaded. Please refresh and try again.')
+        }
+        await handleRazorpayPayment(data)
+      }
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong")
       setSubmitting(false)
     }
   }
@@ -400,126 +499,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Payment Method */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">2</div>
-                  <h2 className="text-lg font-semibold">Payment Method</h2>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
-                  {[
-                    { id: 'cod', icon: Banknote, label: 'COD' },
-                    { id: 'upi', icon: Smartphone, label: 'UPI' },
-                    { id: 'card', icon: CreditCard, label: 'Card' },
-                    { id: 'netbanking', icon: Building2, label: 'Net Banking' },
-                    { id: 'wallet', icon: Wallet, label: 'Wallet' }
-                  ].map(({ id, icon: Icon, label }) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => setPaymentMethod(id as any)}
-                      className={`p-3 border-2 rounded-lg transition-all ${
-                        paymentMethod === id 
-                          ? 'border-blue-600 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <Icon className={`w-5 h-5 mx-auto mb-1 ${paymentMethod === id ? 'text-blue-600' : 'text-gray-600'}`} />
-                      <span className={`text-xs font-medium block ${paymentMethod === id ? 'text-blue-600' : 'text-gray-700'}`}>{label}</span>
-                    </button>
-                  ))}
-                </div>
-
-                {paymentMethod === 'cod' && (
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm text-gray-700">Pay with cash when your order is delivered</p>
-                  </div>
-                )}
-
-                {paymentMethod === 'upi' && (
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">UPI ID</label>
-                    <Input
-                      placeholder="yourname@upi"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={upiId}
-                      onChange={(e) => setUpiId(e.target.value)}
-                    />
-                  </div>
-                )}
-
-                {paymentMethod === 'card' && (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                      <Input
-                        placeholder="1234 5678 9012 3456"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(e.target.value)}
-                        maxLength={16}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
-                        <Input
-                          placeholder="MM/YY"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          value={cardExpiry}
-                          onChange={(e) => setCardExpiry(e.target.value)}
-                          maxLength={5}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                        <Input
-                          placeholder="123"
-                          type="password"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          value={cardCvv}
-                          onChange={(e) => setCardCvv(e.target.value)}
-                          maxLength={3}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {paymentMethod === 'netbanking' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Select Bank</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={selectedBank}
-                      onChange={(e) => setSelectedBank(e.target.value)}
-                    >
-                      <option value="">Choose Bank</option>
-                      <option value="sbi">State Bank of India</option>
-                      <option value="hdfc">HDFC Bank</option>
-                      <option value="icici">ICICI Bank</option>
-                      <option value="axis">Axis Bank</option>
-                    </select>
-                  </div>
-                )}
-
-                {paymentMethod === 'wallet' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Select Wallet</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={selectedWallet}
-                      onChange={(e) => setSelectedWallet(e.target.value)}
-                    >
-                      <option value="">Choose Wallet</option>
-                      <option value="paytm">Paytm</option>
-                      <option value="phonepe">PhonePe</option>
-                      <option value="googlepay">Google Pay</option>
-                    </select>
-                  </div>
-                )}
-              </div>
+              
             </div>
 
             {/* Order Summary Sidebar */}
@@ -567,7 +547,35 @@ export default function CheckoutPage() {
                     <span className="text-blue-600">₹{total.toLocaleString()}</span>
                   </div>
                 </div>
-                
+
+                {/* Payment Method Selector */}
+                <div className="py-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                  <div className="grid gap-2">
+                    <label className={`flex items-center gap-3 p-3 rounded-md border ${paymentMethod === 'cod' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                      <input type="radio" name="paymentMethod" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="hidden" />
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-600 border border-gray-200">
+                        <Banknote className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">Cash on Delivery</div>
+                        <div className="text-xs text-gray-500">Pay when you receive the order</div>
+                      </div>
+                    </label>
+
+                    <label className={`flex items-center gap-3 p-3 rounded-md border ${paymentMethod !== 'cod' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                      <input type="radio" name="paymentMethod" value="razorpay" checked={paymentMethod === 'razorpay'} onChange={() => setPaymentMethod('razorpay')} className="hidden" />
+                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-600 border border-gray-200">
+                        <CreditCard className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">Online Payment</div>
+                        <div className="text-xs text-gray-500">Pay securely using Razorpay (cards, UPI, netbanking)</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
                 {error && (
                   <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-600">{error}</p>

@@ -100,7 +100,7 @@ export default function CategorySlugPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto sm:px-4">
+      <div className="w-full mx-auto sm:px-4">
         <div className="mb-6 px-4 flex items-center justify-between">
           <div className="">
             <h1 className="text-2xl font-bold">{categoryName}</h1>
@@ -131,16 +131,19 @@ export default function CategorySlugPage() {
             ))}
           </div>
         ) : sortedProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-2 md:gap-4">
-            {sortedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-                onBuyNow={handleBuyNow}
-              />
-            ))}
-          </div>
+
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
+    {products.map((product) => (
+      <ProductCard
+        key={product.id}
+        product={product}
+        onAddToCart={handleAddToCart}
+        onBuyNow={handleBuyNow}
+      />
+    ))}
+  </div>
+
+
         ) : (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">📦</div>

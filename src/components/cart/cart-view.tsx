@@ -144,7 +144,7 @@ export default function CartView() {
                   const isOutOfStock = product ? availableStock < (i.qty || 1) : false
                   
                   return (
-                    <li key={i.id} className={`p-3 sm:p-4 hover:bg-gray-50 transition-colors ${isOutOfStock ? 'bg-gray-50' : ''}`}>
+                    <li key={i.id} className={`p-3 sm:p-4 hover:bg-white transition-colors ${isOutOfStock ? 'bg-gray-50' : ''}`}>
                       <div className="flex gap-2 sm:gap-4">
                         <Link href={`/products/${i.slug}`} className="flex-shrink-0">
                           <Image
@@ -166,7 +166,7 @@ export default function CartView() {
                           )}
                           <p className="text-base sm:text-lg font-bold text-gray-900 mb-2">₹{(i.price * (i.qty || 1)).toLocaleString()}</p>
                         <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-                          <div className="flex items-center border rounded-lg">
+                          <div className="flex items-center">
                             <button
                               onClick={() => {
                                 const currentQty = i.qty || 1
@@ -179,11 +179,11 @@ export default function CartView() {
                                   setItems(getCart())
                                 }
                               }}
-                              className="p-1.5 sm:p-2 hover:bg-gray-100 transition-colors"
+                              className="p-1.5 sm:p-2 hover:bg-gray-100 transition-colors rounded-full border hover:cursor-pointer"
                             >
                               <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
-                            <span className="px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium min-w-[2rem] sm:min-w-[3rem] text-center">
+                            <span className="px-1 sm:px-2 py-1 sm:py-2 text-xs sm:text-sm font-medium min-w-[1rem] sm:min-w-[1.5rem] text-center">
                               {i.qty || 1}
                             </span>
                             <button
@@ -198,7 +198,7 @@ export default function CartView() {
                                 updateQty(i.id, currentQty + 1)
                                 setItems(getCart())
                               }}
-                              className="p-1.5 sm:p-2 hover:bg-gray-100 transition-colors"
+                              className="p-1.5 sm:p-2 hover:bg-gray-100 transition-colors rounded-full border hover:cursor-pointer"
                             >
                               <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
@@ -209,7 +209,7 @@ export default function CartView() {
                               setItems(getCart())
                               toast.success('Removed from cart')
                             }}
-                            className="flex items-center gap-1 text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium"
+                            className="flex items-center gap-1 text-xs sm:text-sm text-red-500 hover:text-red-600 font-medium hover:cursor-pointer"
                           >
                             <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span className="hidden sm:inline">Remove</span>

@@ -166,20 +166,20 @@ export default function AdminDashboardPage() {
       color: 'from-purple-500 to-pink-500'
     },
     {
+      title: 'Reviews',
+      count: '0',
+      description: 'Customer reviews',
+      icon: BarChart3,
+      href: '/admin/reviews',
+      color: 'from-yellow-500 to-orange-500'
+    },
+    {
       title: 'Settings',
       count: '6',
       description: 'Configuration options',
       icon: Settings,
       href: '/admin/settings',
       color: 'from-gray-500 to-gray-700'
-    },
-    {
-      title: 'Revenue',
-      count: `₹${(stats.revenue / 1000).toFixed(1)}K`,
-      description: 'Total revenue earned',
-      icon: BarChart3,
-      href: '#',
-      color: 'from-orange-500 to-red-500'
     },
   ]
 

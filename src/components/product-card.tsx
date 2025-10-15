@@ -175,14 +175,14 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
               <button
                 onClick={(e) => onAddToCart(e, product)}
                 disabled={currentQty === 0}
-                className="flex-1 bg-yellow-400 hover:bg-yellow-500  text-gray-900 font-bold py-2 text-xs sm:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                className="flex-1 bg-yellow-400 hover:bg-yellow-500  text-gray-900 font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
               >
                 ADD TO CART
               </button>
               <button
                 onClick={(e) => onBuyNow(e, product)}
                 disabled={currentQty === 0}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm lg:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
               >
                 BUY NOW
               </button>

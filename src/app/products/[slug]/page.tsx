@@ -47,6 +47,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -182,9 +183,17 @@ export default function ProductPage() {
           )
           found.quantity = Math.max(0, found.quantity - cartQty)
           setIsWishlisted(isInWishlist(found.id));
+          setProduct(found);
+          
+          fetch(`/api/reviews?productId=${found.id}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.reviews) setReviews(data.reviews)
+            })
+            .catch(() => setReviews([]))
+        } else {
+          setProduct(null);
         }
-        
-        setProduct(found || null);
       })
       .catch(() => setProduct(null))
       .finally(() => setLoading(false));
@@ -260,27 +269,35 @@ export default function ProductPage() {
                   {discount}% OFF
                 </div>
               )}
-              <button
-                onClick={() => {
-                  const added = toggleWishlist({
-                    id: product.id,
-                    slug: product.slug,
-                    name: product.name,
-                    price: product.price,
-                    image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
-                    description: product.description
-                  });
-                  setIsWishlisted(added);
-                  toast.success(added ? 'Added to wishlist' : 'Removed from wishlist');
-                }}
-                className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform z-10"
-              >
-                <Heart
-                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${
-                    isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'
-                  }`}
-                />
-              </button>
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex gap-2 z-10">
+                <button
+                  onClick={() => {
+                    const added = toggleWishlist({
+                      id: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      price: product.price,
+                      image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+                      description: product.description
+                    });
+                    setIsWishlisted(added);
+                    toast.success(added ? 'Added to wishlist' : 'Removed from wishlist');
+                  }}
+                  className="p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform"
+                >
+                  <Heart
+                    className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${
+                      isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'
+                    }`}
+                  />
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform sm:hidden"
+                >
+                  <Share2 className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
             </div>
             
             {images.length > 1 && (
@@ -300,11 +317,7 @@ export default function ProductPage() {
             )}
 
             {/* Action Icons */}
-            <div className="flex gap-2 sm:gap-3 mt-3 sm:mt-4">
-              {/* <button onClick={handleWishlist} className="flex-1 py-2.5 border-2 border-gray-300 rounded-lg hover:border-red-500 hover:bg-red-50 hover:text-red-600 flex items-center justify-center gap-2 transition-all font-medium">
-                <Heart className="w-5 h-5" />
-                <span className="text-sm">Wishlist</span>
-              </button> */}
+            <div className="hidden sm:flex gap-2 sm:gap-3 mt-3 sm:mt-4">
               <button onClick={handleShare} className="flex-1 py-2 sm:py-2.5 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center gap-1.5 sm:gap-2 transition-all font-medium">
                 <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-xs sm:text-sm">Share</span>
@@ -514,12 +527,14 @@ export default function ProductPage() {
           </div>
         </div>
 
+       
+
         {/* Description & Specifications */}
         <div className="mt-4 sm:mt-6 grid lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {/* Description */}
-          <div className="lg:col-span-2 bg-white rounded-lg p-3 sm:p-4 lg:p-6 shadow-sm">
+          <div className="lg:col-span-2 bg-white rounded-lg p-3 py-4 sm:p-4 lg:p-6 shadow-sm">
             <h2 className="text-lg sm:text-xl font-bold mb-4">Product Description</h2>
-            <p className="text-gray-700 leading-relaxed mb-6">{product.description}</p>
+            <p className="text-sm sm:text-lg text-gray-700 leading-relaxed mb-6">{product.description}</p>
             
             <h3 className="text-lg font-semibold mb-3">Key Features</h3>
             <ul className="space-y-2 text-gray-700">
@@ -531,14 +546,6 @@ export default function ProductPage() {
               <li className="flex gap-2"><span className="text-green-600">✓</span> Reliable performance with consistent quality output</li>
               <li className="flex gap-2"><span className="text-green-600">✓</span> Compatible with multiple devices and platforms</li>
               <li className="flex gap-2"><span className="text-green-600">✓</span> Low maintenance with easy cleaning and care</li>
-            </ul>
-            
-            <h3 className="text-lg font-semibold mb-3 mt-6">What&apos;s in the Box</h3>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x {product.name}</li>
-              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x User Manual</li>
-              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x Warranty Card</li>
-              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x Power Cable (if applicable)</li>
             </ul>
           </div>
 
@@ -609,10 +616,65 @@ export default function ProductPage() {
                 <span className="font-medium text-right">ISI Certified</span>
               </div>
             </div>
+
+            
+            <h3 className="text-lg font-semibold mb-3 mt-6">What&apos;s in the Box</h3>
+            <ul className="space-y-2 text-gray-700">
+              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x {product.name}</li>
+              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x User Manual</li>
+              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x Warranty Card</li>
+              <li className="flex gap-2"><span className="text-blue-600">•</span> 1 x Power Cable (if applicable)</li>
+            </ul>
           </div>
+          
+
+         
         </div>
+
+        {/* Reviews Section */}
+{reviews.length > 0 && (
+  <div className="mt-6 w-full bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+    <h2 className="text-xl sm:text-2xl font-bold mb-6">Reviews</h2>
+    <div className="space-y-4">
+      {reviews.map((review: any) => (
+        <div
+          key={review.id}
+          className="p-4 sm:p-5 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-gray-50"
+        >
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <div className="font-semibold text-gray-900 text-sm sm:text-base">{review.userName}</div>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                  />
+                ))}
+              </div>
+            </div>
+            <span className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0">
+              {new Date(review.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+          <p className="text-gray-700 text-sm sm:text-base mb-3 break-words whitespace-pre-wrap line-clamp-3">{review.comment}</p>
+
+          {review.adminReply && (
+            <div className="mt-2 sm:mt-3 p-3 sm:p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+              <div className="text-sm sm:text-base font-semibold text-blue-900 mb-1">Seller Response:</div>
+              <div className="text-sm sm:text-base text-gray-700">{review.adminReply}</div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
       </div>
     </div>
+
+    
 
     {/* Share Dialog */}
     {showShareDialog && (

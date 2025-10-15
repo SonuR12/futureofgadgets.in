@@ -11,6 +11,7 @@ import {
   Settings,
   UserSquare,
   SettingsIcon,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -44,10 +45,10 @@ import {
 
 const navItems = [
   { href: "/admin", icon: Home, label: "Dashboard" },
-  // { href: "/admin/dashboard", icon: BarChart3, label: "Admin Panel" },
   { href: "/admin/orders", icon: ShoppingCart, label: "Orders" },
   { href: "/admin/products", icon: Package, label: "Products" },
   { href: "/admin/users", icon: Users, label: "Users" },
+  { href: "/admin/reviews", icon: Star, label: "Reviews" },
   { href: "/admin/settings", icon: SettingsIcon, label: "Settings" },
 ];
 

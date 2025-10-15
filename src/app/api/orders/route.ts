@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     console.log('Creating order for user:', user.id)
     
     const body = await request.json()
-    const { items, address, paymentMethod, deliveryDate } = body
+    const { items, address, paymentMethod, deliveryDate, razorpayPaymentId, razorpayOrderId } = body
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "No items provided" }, { status: 400 })
@@ -149,11 +149,13 @@ export async function POST(request: Request) {
         userId: user.id,
         items: orderItems,
         total,
-        status: "pending",
+        status: paymentMethod === 'cod' ? "pending" : "paid",
         address,
         paymentMethod,
-        deliveryDate: new Date(deliveryDate)
-      }
+        deliveryDate: new Date(deliveryDate),
+        razorpayPaymentId: razorpayPaymentId || null,
+        razorpayOrderId: razorpayOrderId || null
+      } as any
     })
 
     // Send order notification email to admin

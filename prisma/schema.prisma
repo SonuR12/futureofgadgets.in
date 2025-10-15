@@ -77,6 +77,7 @@ model Order {
   cancelReason  String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  reviews       Review[]
 }
 
 type OrderItem {
@@ -102,4 +103,18 @@ model Setting {
   data      Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String   @db.ObjectId
+  order       Order    @relation(fields: [orderId], references: [id])
+  productId   String
+  userId      String
+  userName    String
+  rating      Int
+  comment     String
+  adminReply  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

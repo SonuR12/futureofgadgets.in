@@ -9,17 +9,12 @@ import {
   Truck,
   CheckCircle,
   Search,
-  ChevronDown,
-  Bell,
-  User,
   Eye,
   Download,
   ArrowUpDown,
-  Loader2,
-  Filter,
   MoreHorizontal,
-  Clock,
   Trash2,
+  Loader,
 } from "lucide-react";
 import {
   Table,
@@ -144,6 +139,8 @@ type Order = {
   paymentMethod: string;
   deliveryDate: string;
   billUrl?: string;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -862,13 +859,37 @@ export default function AdminOrdersPage() {
                           </div>
                         </div>
                       ))}
-                      <div className="flex justify-between items-center pt-4 mt-4 border-t-2 border-gray-200">
-                        <span className="text-lg font-semibold text-gray-900">
-                          Total Amount
-                        </span>
-                        <span className="text-xl font-bold text-blue-600">
-                          ₹{selectedOrder.total.toLocaleString()}
-                        </span>
+                      <div className="pt-4 mt-4 border-t-2 border-gray-200 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-semibold text-gray-900">
+                            Total Amount
+                          </span>
+                          <span className="text-xl font-bold text-blue-600">
+                            ₹{selectedOrder.total.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Payment Method</span>
+                          <span className="font-medium">{selectedOrder.paymentMethod === 'cod' ? 'Cash On Delivery' : selectedOrder.paymentMethod.toUpperCase()}</span>
+                        </div>
+                        {selectedOrder.razorpayPaymentId && (
+                          <>
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">Payment ID</span>
+                              <span className="font-mono text-xs break-all">{selectedOrder.razorpayPaymentId}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">Transaction ID</span>
+                              <span className="font-mono text-xs break-all">{selectedOrder.razorpayOrderId}</span>
+                            </div>
+                            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                              <p className="text-xs text-green-700 font-medium flex items-center gap-1">
+                                <CheckCircle className="h-3 w-3" />
+                                Payment Verified & Secured by Razorpay
+                              </p>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1359,7 +1380,7 @@ export default function AdminOrdersPage() {
                           </Select>
                           {updatingDialogStatus && (
                             <div className="flex items-center gap-2 text-blue-600 mt-2">
-                              <Loader2 className="w-6 h-6 animate-spin" />
+                              <Loader className="w-4 h-4 animate-spin" />
                               <span className="text-sm">Updating...</span>
                             </div>
                           )}
