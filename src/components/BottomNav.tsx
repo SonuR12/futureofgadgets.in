@@ -51,12 +51,12 @@ export default function BottomNav() {
         <Link
           href="/category"
           className={`flex flex-col items-center justify-center px-2 py-1 rounded-lg transition-all min-w-0 ${
-            pathname === "/categories"
+            pathname.startsWith("/category")
               ? "text-teal-600 bg-teal-50"
               : "text-gray-600 hover:bg-gray-100"
           }`}
         >
-          <LayoutGrid className="w-5 h-5" strokeWidth={pathname === "/categories" ? 2.5 : 2} />
+          <LayoutGrid className="w-5 h-5" strokeWidth={pathname.startsWith("/category") ? 2.5 : 2} />
           <span className="text-[9px] font-medium truncate">Category</span>
         </Link>
 
