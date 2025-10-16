@@ -8,8 +8,8 @@ export default function Loading() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white">
       {/* Minimal rotating ring */}
-      <div className="text-center">
-        <span className="block text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 tracking-wide">
+      <div className="text-center text-gray-700">
+        <span className="block text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 tracking-wide -ml-2">
           Future Of Gadgets
         </span>
 
