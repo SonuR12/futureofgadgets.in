@@ -34,6 +34,7 @@ type Product = {
   ramMemory?: string;
   operatingSystem?: string;
   graphics?: string;
+  color?: string;
 };
 
 export default function ProductPage() {
@@ -45,6 +46,7 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [reviews, setReviews] = useState<any[]>([]);
@@ -72,7 +74,8 @@ export default function ProductPage() {
         slug: product.slug,
         name: product.name,
         price: product.price,
-        image: product.frontImage || product.image || product.coverImage || "/no-image.svg"
+        image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+        color: selectedColor || product.color
       });
     }
     
@@ -107,7 +110,8 @@ export default function ProductPage() {
         slug: product.slug,
         name: product.name,
         price: product.price,
-        image: product.frontImage || product.image || product.coverImage || "/no-image.svg"
+        image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+        color: selectedColor || product.color
       });
     }
     
@@ -184,6 +188,10 @@ export default function ProductPage() {
           found.quantity = Math.max(0, found.quantity - cartQty)
           setIsWishlisted(isInWishlist(found.id));
           setProduct(found);
+          if (found.color) {
+            const colors = found.color.split(',').map((c: string) => c.trim());
+            setSelectedColor(colors[0]);
+          }
           
           fetch(`/api/reviews?productId=${found.id}`)
             .then(res => res.json())
@@ -405,6 +413,32 @@ export default function ProductPage() {
                     </div>
                   </div>
                 )}
+                
+                {product.color && (
+                  <div>
+                    <span className="text-sm font-medium text-gray-700 block mb-2">Color:</span>
+                    <div className="flex gap-2 flex-wrap">
+                      {product.color.split(',').map((color: string) => {
+                        const trimmedColor = color.trim();
+                        return (
+                          <button
+                            key={trimmedColor}
+                            type="button"
+                            onClick={() => setSelectedColor(trimmedColor)}
+                            className={`px-4 py-2 rounded-lg font-medium border-2 transition-all flex items-center gap-2 ${
+                              selectedColor === trimmedColor
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-gray-100 text-gray-900 border-gray-300 hover:border-blue-400'
+                            }`}
+                          >
+                            <div className="h-5 w-5 rounded-full border border-gray-300" style={{ backgroundColor: trimmedColor.toLowerCase() }}></div>
+                            {trimmedColor.charAt(0).toUpperCase() + trimmedColor.slice(1).toLowerCase()}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Buttons */}
@@ -599,10 +633,6 @@ export default function ProductPage() {
                   <span className="font-medium text-right">{product.operatingSystem}</span>
                 </div>
               )}
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600">Color</span>
-                <span className="font-medium text-right">Black</span>
-              </div>
               <div className="flex justify-between py-2 border-b">
                 <span className="text-gray-600">Warranty</span>
                 <span className="font-medium text-right">1 Year</span>

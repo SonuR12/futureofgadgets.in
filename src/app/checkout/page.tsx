@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/ui/loading-button"
 import Loading from "../loading"
 
-type CartItem = { productId: string; qty: number; title?: string; price?: number; image?: string }
+type CartItem = { productId: string; qty: number; title?: string; price?: number; image?: string; color?: string }
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -89,14 +89,20 @@ export default function CheckoutPage() {
       const raw = localStorage.getItem("v0_cart") || localStorage.getItem("cart")
       if (raw) {
         const parsed = JSON.parse(raw)
+        console.log('Raw cart data:', parsed)
         const cartItems = Array.isArray(parsed) ? parsed : (parsed?.items || [])
-        const normalized: CartItem[] = cartItems.map((it: any) => ({
-          productId: it.id || it.productId || it.slug,
-          qty: Number(it.qty || it.quantity || 1),
-          title: it.name || it.title,
-          price: Number(it.price || 0),
-          image: it.image || '/placeholder.svg',
-        }))
+        const normalized: CartItem[] = cartItems.map((it: any) => {
+          console.log('Cart item:', it)
+          return {
+            productId: it.id || it.productId || it.slug,
+            qty: Number(it.qty || it.quantity || 1),
+            title: it.name || it.title,
+            price: Number(it.price || 0),
+            image: it.image || '/placeholder.svg',
+            color: it.color,
+          }
+        })
+        console.log('Normalized items:', normalized)
         setItems(normalized.filter((it) => !!it.productId && (it.price ?? 0) > 0))
       }
     } catch (err) {
@@ -218,7 +224,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: items.map((it) => ({ productId: String(it.productId), qty: Number(it.qty || 1) })),
+          items: items.map((it) => ({ productId: String(it.productId), qty: Number(it.qty || 1), color: it.color })),
           address: { fullName: data.fullName, phone: data.phone, line1: data.line1, line2: data.line2, city: data.city, state: data.state, zip: data.zip },
           paymentMethod,
           deliveryDate: new Date(data.deliveryDate).toISOString(),
@@ -508,12 +514,12 @@ export default function CheckoutPage() {
                 <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
                 
                 <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-                  {items.map((it) => {
+                  {items.map((it, idx) => {
                     const stock = stockStatus[it.productId]
                     const isOutOfStock = stock && stock.available < stock.requested
                     
                     return (
-                      <div key={it.productId} className={`flex gap-3 ${isOutOfStock ? 'opacity-60' : ''}`}>
+                      <div key={`${it.productId}-${idx}`} className={`flex gap-3 ${isOutOfStock ? 'opacity-60' : ''}`}>
                         <img
                           src={it.image || "/placeholder.svg"}
                           alt={it.title || "Product"}
@@ -521,7 +527,15 @@ export default function CheckoutPage() {
                         />
                         <div className="flex-1 min-w-0">
                           <Link href={`/products/${it.productId}`} className="text-sm font-medium truncate hover:text-blue-600 block">{it.title}</Link>
+                          <div className="flex gap-2">
                           <p className="text-xs text-gray-500">Qty: {it.qty}</p>
+                          {it.color && (
+                            <p className="text-xs text-gray-600 flex items-center gap-1">
+                              <span className="inline-block w-3 h-3 rounded-full border" style={{ backgroundColor: it.color.toLowerCase() }}></span>
+                              {it.color}
+                            </p>
+                          )}
+                          </div>
                           {isOutOfStock ? (
                             <p className="text-xs font-semibold text-red-600">Out of Stock (Only {stock.available} available)</p>
                           ) : (

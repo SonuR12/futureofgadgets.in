@@ -845,9 +845,17 @@ export default function AdminOrdersPage() {
                             <h4 className="font-semibold text-gray-900 mb-1">
                               {item.name}
                             </h4>
+
                             <p className="text-sm text-gray-600">
                               Quantity: {item.qty}
                             </p>
+                            {(item as any).color && (
+                              <p className="text-sm text-gray-600 flex items-center gap-1">
+                                Color:
+                                <span className="inline-block w-3 h-3 rounded-full border" style={{ backgroundColor: (item as any).color.toLowerCase() }}></span>
+                                 {(item as any).color}
+                              </p>
+                            )}
                             <p className="text-sm text-gray-600">
                               Unit Price: ₹{item.price.toLocaleString()}
                             </p>

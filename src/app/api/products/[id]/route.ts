@@ -26,6 +26,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         operatingSystem: data.operatingSystem || '',
         graphics: data.graphics || '',
         offers: data.offers || '',
+        color: data.color || '',
         status: data.status || 'active',
         sku: data.sku || ''
       } as any

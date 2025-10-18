@@ -77,6 +77,7 @@ type Item = {
   operatingSystem?: string;
   graphics?: string;
   offers?: string;
+  color?: string;
 };
 
 const itemSchema = z.object({
@@ -95,6 +96,7 @@ const itemSchema = z.object({
   operatingSystem: z.string().optional(),
   graphics: z.string().optional(),
   offers: z.string().optional(),
+  color: z.string().optional(),
 });
 
 type ItemFormValues = z.infer<typeof itemSchema>;
@@ -137,6 +139,7 @@ export default function ProductTable() {
     operatingSystem: "",
     graphics: "",
     offers: "",
+    color: "",
   };
 
   const form = useForm<ItemFormValues>({
@@ -186,6 +189,7 @@ export default function ProductTable() {
             operatingSystem: p.operatingSystem ?? "",
             graphics: p.graphics ?? "",
             offers: p.offers ?? "",
+            color: p.color ?? "",
           };
         });
         setData(items);
@@ -266,6 +270,7 @@ export default function ProductTable() {
       operatingSystem: item.operatingSystem || "",
       graphics: item.graphics || "",
       offers: item.offers || "",
+      color: item.color || "",
     });
     setFrontImage(null);
     setAdditionalImages([]);
@@ -437,6 +442,7 @@ export default function ProductTable() {
         operatingSystem: values.operatingSystem,
         graphics: values.graphics,
         offers: values.offers,
+        color: values.color,
         status: "active" as const,
         sku: editId
           ? data.find((item) => item.id === editId)?.sku || `SKU-${Date.now()}`
@@ -484,6 +490,7 @@ export default function ProductTable() {
         operatingSystem: values.operatingSystem || "",
         graphics: values.graphics || "",
         offers: values.offers || "",
+        color: values.color || "",
       };
 
       if (editId) {
@@ -883,39 +890,57 @@ export default function ProductTable() {
                           )}
                         />
                       </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="graphics"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Graphics</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g. Intel UHD Graphics"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="color"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Color</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g. Black, Silver"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <FormField
                         control={form.control}
-                        name="graphics"
+                        name="offers"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Graphics</FormLabel>
+                            <FormLabel>Offers</FormLabel>
                             <FormControl>
-                              <Input
-                                placeholder="e.g. Intel UHD Graphics"
+                              <Textarea
+                                placeholder="Special offers or deals..."
                                 {...field}
+                                rows={3}
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                            <FormField
-                  control={form.control}
-                  name="offers"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Offers</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Special offers or deals..."
-                          {...field}
-                          rows={3}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                     </div>
 
                   

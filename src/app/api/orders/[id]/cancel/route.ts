@@ -35,6 +35,18 @@ export async function POST(
       data: { status: 'cancelled', cancelReason: reason || null, updatedAt: new Date() }
     })
 
+    // Restock items
+    const items = (order as any).items || []
+    for (const item of items) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          quantity: { increment: item.qty },
+          stock: { increment: item.qty }
+        }
+      })
+    }
+
     return NextResponse.json({ success: true, order: updatedOrder })
   } catch (error) {
     console.error('Cancel order error:', error)

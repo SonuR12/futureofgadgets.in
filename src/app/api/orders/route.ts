@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { sendEmail, getOrderNotificationTemplate } from "@/lib/email"
+import { sendEmail, getOrderNotificationTemplate, getOrderConfirmationTemplate } from "@/lib/email"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -125,12 +125,13 @@ export async function POST(request: Request) {
       const product = await prisma.product.findUnique({ where: { id: it.productId } })
       if (!product) return NextResponse.json({ error: `Product not found` }, { status: 400 })
       
-      const orderItem = {
+      const orderItem: any = {
         productId: product.id,
         name: product.name,
         price: product.price,
         qty: Math.max(1, Math.floor(it.qty || 1))
       }
+      if (it.color) orderItem.color = it.color
       orderItems.push(orderItem)
       total += orderItem.price * orderItem.qty
       
@@ -144,38 +145,79 @@ export async function POST(request: Request) {
       })
     }
 
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        items: orderItems,
-        total,
-        status: paymentMethod === 'cod' ? "pending" : "paid",
-        address,
-        paymentMethod,
-        deliveryDate: new Date(deliveryDate),
-        razorpayPaymentId: razorpayPaymentId || null,
-        razorpayOrderId: razorpayOrderId || null
-      } as any
-    })
-
-    // Send order notification email to admin
-    const adminEmail = process.env.PROTECTED_ADMIN_EMAIL_ID || process.env.NEXT_PUBLIC_PROTECTED_ADMIN_EMAIL_ID
-    if (adminEmail) {
-      const emailHtml = getOrderNotificationTemplate({
-        orderId: order.id,
-        customerName: address.fullName,
-        customerPhone: address.phone,
-        customerEmail: body.userEmail,
-        items: orderItems.map(it => ({ name: it.name, qty: it.qty, price: it.price })),
-        total,
-        address: `${address.line1}, ${address.line2 ? address.line2 + ', ' : ''}${address.city}, ${address.state} - ${address.zip}`,
-        paymentMethod
+    let order
+    try {
+      order = await prisma.order.create({
+        data: {
+          userId: user.id,
+          items: orderItems as any,
+          total,
+          status: paymentMethod === 'cod' ? "pending" : "paid",
+          address,
+          paymentMethod,
+          deliveryDate: new Date(deliveryDate)
+        } as any
       })
-      
-      await sendEmail(adminEmail, `New Order #${order.id.slice(-8)}`, emailHtml)
+    } catch (error) {
+      // Restock items if order creation fails
+      for (const it of items) {
+        const product = await prisma.product.findUnique({ where: { id: it.productId } })
+        if (product) {
+          await prisma.product.update({
+            where: { id: product.id },
+            data: { 
+              quantity: product.quantity + Math.max(1, Math.floor(it.qty || 1)),
+              stock: product.stock + Math.max(1, Math.floor(it.qty || 1))
+            } as any
+          })
+        }
+      }
+      throw error
     }
 
-    return NextResponse.json({ order }, { status: 201 })
+    // Return success immediately
+    const response = NextResponse.json({ order }, { status: 201 })
+
+    // Send emails asynchronously without blocking
+    setImmediate(async () => {
+      try {
+        console.log('Order items for email:', JSON.stringify(orderItems, null, 2))
+        
+        const adminEmail = process.env.PROTECTED_ADMIN_EMAIL_ID || process.env.NEXT_PUBLIC_PROTECTED_ADMIN_EMAIL_ID
+        if (adminEmail) {
+          const emailHtml = getOrderNotificationTemplate({
+            orderId: order.id,
+            customerName: address.fullName,
+            customerPhone: address.phone,
+            customerEmail: body.userEmail,
+            items: orderItems,
+            total,
+            address: `${address.line1}, ${address.line2 ? address.line2 + ', ' : ''}${address.city}, ${address.state} - ${address.zip}`,
+            paymentMethod
+          })
+          
+          await sendEmail(adminEmail, `New Order #${order.id.slice(-8)}`, emailHtml)
+        }
+
+        if (user.email) {
+          const confirmationHtml = getOrderConfirmationTemplate({
+            orderId: order.id,
+            customerName: address.fullName,
+            items: orderItems,
+            total,
+            address: `${address.line1}, ${address.line2 ? address.line2 + ', ' : ''}${address.city}, ${address.state} - ${address.zip}`,
+            paymentMethod,
+            deliveryDate
+          })
+          
+          await sendEmail(user.email, `Order Confirmation #${order.id.slice(-8)}`, confirmationHtml)
+        }
+      } catch (emailError) {
+        console.error('Email sending error:', emailError)
+      }
+    })
+
+    return response
   } catch (error) {
     console.error('Order creation error:', error)
     return NextResponse.json({ 

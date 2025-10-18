@@ -58,6 +58,7 @@ model Product {
   operatingSystem String?
   graphics      String?
   offers        String?
+  color         String?
   lastRestockedAt DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -85,6 +86,7 @@ type OrderItem {
   name      String
   price     Int
   qty       Int
+  color     String?
 }
 
 type Address {

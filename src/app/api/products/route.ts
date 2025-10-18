@@ -55,6 +55,7 @@ export async function POST(req: Request) {
         operatingSystem: data.operatingSystem || '',
         graphics: data.graphics || '',
         offers: data.offers || '',
+        color: data.color || '',
         status: data.status || 'active',
         sku: data.sku || `SKU-${Date.now()}`
       } as any

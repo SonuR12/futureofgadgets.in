@@ -99,7 +99,7 @@ export function getOrderNotificationTemplate(orderData: {
   customerName: string
   customerPhone: string
   customerEmail?: string
-  items: Array<{ name: string; qty: number; price: number }>
+  items: Array<{ name: string; qty: number; price: number; color?: string }>
   total: number
   address: string
   paymentMethod: string
@@ -107,7 +107,10 @@ export function getOrderNotificationTemplate(orderData: {
   const itemsHtml = orderData.items
     .map(item => `
       <tr>
-        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px;">${item.name}</td>
+        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px;">
+          ${item.name}
+          ${item.color ? `<br><span style="color: #64748b; font-size: 12px;">Color: ${item.color}</span>` : ''}
+        </td>
         <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">×${item.qty}</td>
         <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; text-align: right; color: #0f172a; font-size: 14px; font-weight: 600;">₹${(item.price * item.qty).toLocaleString()}</td>
       </tr>
@@ -115,7 +118,7 @@ export function getOrderNotificationTemplate(orderData: {
 
   return `
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
-      <h1 style="color: #2563eb; margin: 0 0 8px 0; font-size: 28px; font-weight: 600;">🛒 New Order</h1>
+      <h1 style="color: #2563eb; margin: 0 0 8px 0; font-size: 28px; font-weight: 600;">New Order</h1>
       <p style="color: #64748b; margin: 0 0 12px 0; font-size: 15px;">Future of Gadgets</p>
       <p style="color: #94a3b8; margin: 0 0 40px 0; font-size: 13px;">${new Date().toLocaleString('en-IN')}</p>
       
@@ -157,6 +160,75 @@ export function getOrderNotificationTemplate(orderData: {
       </div>
       
       <p style="color: #94a3b8; font-size: 12px; margin: 40px 0 0 0; border-top: 1px solid #e2e8f0; padding-top: 20px;">Automated notification from Future of Gadgets</p>
+    </div>
+  `
+}
+
+export function getOrderConfirmationTemplate(orderData: {
+  orderId: string
+  customerName: string
+  items: Array<{ name: string; qty: number; price: number; color?: string }>
+  total: number
+  address: string
+  paymentMethod: string
+  deliveryDate?: Date
+}): string {
+  const itemsHtml = orderData.items
+    .map(item => `
+      <tr>
+        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px;">
+          ${item.name}
+          ${item.color ? `<br><span style="color: #64748b; font-size: 12px;">Color: ${item.color}</span>` : ''}
+        </td>
+        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">×${item.qty}</td>
+        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; text-align: right; color: #0f172a; font-size: 14px; font-weight: 600;">₹${(item.price * item.qty).toLocaleString()}</td>
+      </tr>
+    `).join('')
+
+  return `
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
+      <h1 style="color: #2563eb; margin: 0 0 8px 0; font-size: 28px; font-weight: 600;">Order Confirmed</h1>
+      <p style="color: #64748b; margin: 0 0 12px 0; font-size: 15px;">Future of Gadgets</p>
+      <p style="color: #94a3b8; margin: 0 0 40px 0; font-size: 13px;">${new Date().toLocaleString('en-IN')}</p>
+      
+      <p style="color: #475569; margin: 0 0 32px 0; font-size: 15px; line-height: 1.6;">Hi ${orderData.customerName}, thank you for your order! We'll send you a shipping confirmation email as soon as your order ships.</p>
+      
+      <div style="margin-bottom: 32px;">
+        <p style="color: #64748b; margin: 0 0 4px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
+        <p style="color: #0f172a; margin: 0; font-size: 16px; font-weight: 600;">${orderData.orderId}</p>
+      </div>
+      
+      <div style="margin-bottom: 32px;">
+        <h2 style="color: #0f172a; margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Order Summary</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tbody>${itemsHtml}</tbody>
+        </table>
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #0f172a;">
+          <table style="width: 100%;">
+            <tr>
+              <td style="color: #0f172a; font-size: 16px; font-weight: 600;">Total</td>
+              <td style="text-align: right; color: #2563eb; font-size: 20px; font-weight: 700;">₹${orderData.total.toLocaleString()}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 32px;">
+        <h2 style="color: #0f172a; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;">Delivery Address</h2>
+        <p style="color: #475569; margin: 0; font-size: 14px; line-height: 1.6;">${orderData.address}</p>
+      </div>
+      
+      ${orderData.deliveryDate ? `<div style="margin-bottom: 32px;">
+        <h2 style="color: #0f172a; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;">Expected Delivery</h2>
+        <p style="color: #475569; margin: 0; font-size: 14px;">${new Date(orderData.deliveryDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      </div>` : ''}
+      
+      <div style="margin-bottom: 32px;">
+        <h2 style="color: #0f172a; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;">Payment Method</h2>
+        <p style="color: #475569; margin: 0; font-size: 14px;">${orderData.paymentMethod.toUpperCase()}</p>
+      </div>
+      
+      <p style="color: #94a3b8; font-size: 12px; margin: 40px 0 0 0; border-top: 1px solid #e2e8f0; padding-top: 20px;">Thank you for shopping with Future of Gadgets!</p>
     </div>
   `
 }

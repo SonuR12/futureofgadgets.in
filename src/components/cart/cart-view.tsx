@@ -169,6 +169,9 @@ export default function CartView() {
                           <Link href={`/products/${i.slug}`}>
                             <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 line-clamp-2">{i.name}</h3>
                           </Link>
+                          {(i as any).color && (
+                            <p className="text-xs text-gray-600 mb-1">Color: {(i as any).color}</p>
+                          )}
                           {isOutOfStock ? (
                             <p className="text-xs sm:text-sm text-red-600 font-semibold mb-2">Out of Stock</p>
                           ) : (

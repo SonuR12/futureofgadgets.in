@@ -9,6 +9,7 @@ type CartItem = {
   price: number
   image: string
   qty?: number
+  color?: string
 }
 
 const KEY = "v0_cart"
@@ -39,7 +40,7 @@ export function getCart(): CartItem[] {
 
 export function addToCart(item: CartItem) {
   const items = read()
-  const idx = items.findIndex((i) => i.id === item.id)
+  const idx = items.findIndex((i) => i.id === item.id && i.color === item.color)
   if (idx >= 0) {
     items[idx].qty = (items[idx].qty || 1) + 1
   } else {
