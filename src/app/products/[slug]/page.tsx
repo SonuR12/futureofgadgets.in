@@ -286,7 +286,7 @@ export default function ProductPage() {
               />
               {showZoom && (
                 <div 
-                  className="hidden lg:block fixed w-[60vw] h-[85vh] bg-white border-2 shadow-2xl rounded-sm pointer-events-none"
+                  className="hidden lg:block fixed w-[60vw] h-[85vh] bg-white rounded-xs pointer-events-none"
                   style={{
                     backgroundImage: `url(${images[selectedImage]})`,
                     backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
