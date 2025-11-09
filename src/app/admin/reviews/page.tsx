@@ -224,13 +224,13 @@ export default function AdminReviewsPage() {
     <div className="p-6 max-w-6xl ">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Reviews</h1>
-        <Button
+        {/* <Button
           onClick={() => setShowAddDialog(true)}
           className="flex items-center gap-2 px-4 py-2 text-white rounded-lg "
         >
           <Plus className="w-4 h-4" />
           Add
-        </Button>
+        </Button> */}
       </div>
       
       <div className="flex gap-4 mb-6 border-b">
@@ -250,9 +250,19 @@ export default function AdminReviewsPage() {
       
       <div className="space-y-4">
         {activeTab === 'product' && (
-          reviews.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No reviews yet</div>
-          ) : reviews.map((review) => (
+          <>
+            <div className="mb-4">
+              <Button
+                onClick={() => setShowAddDialog(true)}
+                className="flex items-center gap-2 px-4 py-2 text-white rounded-lg"
+              >
+                <Plus className="w-4 h-4" />
+                Add Product Review
+              </Button>
+            </div>
+            {reviews.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">No reviews yet</div>
+            ) : reviews.map((review) => (
           <div key={review.id} className="bg-white p-4 rounded-lg border">
             <div className="flex justify-between items-start mb-2">
               <div>
@@ -302,7 +312,9 @@ export default function AdminReviewsPage() {
             
             
           </div>
-        )))}
+          ))}
+          </>
+        )}
         
         {activeTab === 'customer' && (
           <>
