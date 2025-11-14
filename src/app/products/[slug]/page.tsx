@@ -60,6 +60,21 @@ export default function ProductPage() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [showZoom, setShowZoom] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [showMobileZoom, setShowMobileZoom] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (showMobileZoom) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileZoom]);
   const [selectedWarranty, setSelectedWarranty] = useState<{ duration: string; price: number } | null>(null);
 
   const handleAddToCart = () => {
@@ -373,7 +388,7 @@ export default function ProductPage() {
             <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="hover:text-blue-600 cursor-pointer hover:underline transition-colors" onClick={() => router.push(`/category/${product.category.toLowerCase()}`)}>{product.category}</span>
             <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="text-gray-900 font-medium truncate max-w-[150px] sm:max-w-none">{product.name}</span>
+            <span className="text-black font-medium truncate max-w-[150px] sm:max-w-none">{product.name}</span>
           </div>
         {/* </div> */}
 
@@ -390,11 +405,16 @@ export default function ProductPage() {
                 const y = ((e.clientY - rect.top) / rect.height) * 100;
                 setZoomPosition({ x, y });
               }}
+              onClick={(e) => {
+                if (window.innerWidth < 1024) {
+                  setShowMobileZoom(true);
+                }
+              }}
             >
               <img
                 src={images[selectedImage]}
                 alt={product.name}
-                className="w-full h-full object-contain p-2 sm:p-4 cursor-crosshair"
+                className="w-full h-full object-contain p-2 sm:p-4 cursor-pointer lg:cursor-crosshair"
               />
               {showZoom && (
                 <div 
@@ -418,9 +438,10 @@ export default function ProductPage() {
                   {discount}% OFF
                 </div>
               )}
-              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex gap-2 z-[100]" onMouseEnter={() => setShowZoom(false)} onMouseLeave={() => setShowZoom(true)}>
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex gap-2" onMouseEnter={() => setShowZoom(false)} onMouseLeave={() => setShowZoom(true)}>
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     const added = toggleWishlist({
                       id: product.id,
                       slug: product.slug,
@@ -441,7 +462,10 @@ export default function ProductPage() {
                   />
                 </button>
                 <button
-                  onClick={handleShare}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
                   className="p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:scale-110 transition-transform sm:hidden"
                 >
                   <Share2 className="w-4 h-4 text-gray-600" />
@@ -783,9 +807,9 @@ export default function ProductPage() {
           {/* Description */}
           <div className="lg:col-span-2 bg-white rounded-lg p-3 py-4 sm:p-4 lg:p-6 shadow-sm">
             <h2 className="text-lg sm:text-xl font-bold mb-4">Product Description</h2>
-            <div className="text-sm sm:text-lg text-gray-700 leading-relaxed mb-6 space-y-2">
+            <div className="text-xs sm:text-sm text-black leading-relaxed mb-6 space-y-2">
               {product.description && product.description.split('\n').map((line, index) => (
-                <p key={index} className="break-words">{line}</p>
+                <p key={index} className="break-words mb-0">{line}</p>
               ))}
             </div>
             
@@ -1075,6 +1099,125 @@ export default function ProductPage() {
             />
           </div>
         </div>
+      </div>
+    )}
+
+    {/* Mobile Zoom Dialog */}
+    {showMobileZoom && (
+      <div className="fixed inset-0 bg-white z-[9999] flex flex-col lg:hidden overflow-hidden">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const added = toggleWishlist({
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  price: product.price,
+                  image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+                  description: product.description
+                });
+                setIsWishlisted(added);
+                toast.success(added ? 'Added to wishlist' : 'Removed from wishlist');
+              }}
+              className="p-2 bg-white rounded-full border-1 border-gray-300"
+            >
+              <Heart
+                className={`w-5 h-5 ${
+                  isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'
+                }`}
+              />
+            </button>
+            <button
+              onClick={() => {
+                setShowMobileZoom(false);
+                handleShare();
+              }}
+              className="p-2 bg-white rounded-full border-1 border-gray-300"
+            >
+              <Share2 className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+          <button
+            onClick={() => setShowMobileZoom(false)}
+            className="p-2 bg-white rounded-full border-1 border-gray-300"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <div 
+          className="flex-1 relative min-h-0 overflow-hidden"
+          onTouchStart={(e) => {
+            setTouchStart(e.targetTouches[0].clientX);
+            setIsDragging(true);
+          }}
+          onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
+          onTouchEnd={() => {
+            setIsDragging(false);
+            if (images.length > 1 && touchStart - touchEnd > 50 && selectedImage < images.length - 1) {
+              setSelectedImage(selectedImage + 1);
+            }
+            if (images.length > 1 && touchStart - touchEnd < -50 && selectedImage > 0) {
+              setSelectedImage(selectedImage - 1);
+            }
+            setTouchEnd(0);
+          }}
+        >
+          {images.length > 1 && selectedImage > 0 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(selectedImage - 1);
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full z-10"
+            >
+              <ChevronRight className="w-6 h-6 rotate-180" />
+            </button>
+          )}
+          <div 
+            className="flex h-full"
+            style={{
+              transform: `translateX(calc(-${selectedImage * 100}% + ${isDragging && touchEnd ? touchEnd - touchStart : 0}px))`,
+              transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            {images.map((img, idx) => (
+              <div key={idx} className="w-full h-full flex-shrink-0 flex items-center justify-center">
+                <img
+                  src={img}
+                  alt={product.name}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+            ))}
+          </div>
+          {images.length > 1 && selectedImage < images.length - 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(selectedImage + 1);
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full z-10"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+        </div>
+        {images.length > 1 && (
+          <div className="flex gap-2 justify-center p-4 overflow-x-auto">
+            {images.map((img, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedImage(index)}
+                className={`flex-shrink-0 w-16 h-16 rounded-md border-2 overflow-hidden ${
+                  selectedImage === index ? 'border-blue-600' : 'border-white'
+                }`}
+              >
+                <img src={img} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     )}
     </>
