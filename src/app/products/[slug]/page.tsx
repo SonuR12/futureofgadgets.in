@@ -248,7 +248,7 @@ export default function ProductPage() {
         if (found) {
           const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]")
           
-          // Update RAM options quantities based on cart
+          // Update RAM options quantities based on cart (any combination with this RAM)
           if (found.ramOptions && found.ramOptions.length > 0) {
             found.ramOptions = found.ramOptions.map((ram: any) => {
               const cartQty = cart.reduce((sum: number, item: any) => 
@@ -258,7 +258,7 @@ export default function ProductPage() {
             });
           }
           
-          // Update storage options quantities based on cart
+          // Update storage options quantities based on cart (any combination with this storage)
           if (found.storageOptions && found.storageOptions.length > 0) {
             found.storageOptions = found.storageOptions.map((storage: any) => {
               const cartQty = cart.reduce((sum: number, item: any) => 
@@ -324,14 +324,7 @@ export default function ProductPage() {
       
       // Calculate available stock based on selected configuration
       if (selectedRam && selectedStorage) {
-        const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]")
-        const cartQty = cart.reduce((sum: number, item: any) => 
-          item.id === product.id && 
-          item.selectedRam === selectedRam.size && 
-          item.selectedStorage === selectedStorage.size 
-            ? sum + (item.qty || 1) : sum, 0
-        )
-        const stock = Math.min(selectedRam.quantity, selectedStorage.quantity) - cartQty;
+        const stock = Math.min(selectedRam.quantity, selectedStorage.quantity);
         setAvailableStock(Math.max(0, stock));
       }
       
@@ -344,6 +337,51 @@ export default function ProductPage() {
       }
     }
   }, [product, selectedRam, selectedStorage]);
+
+  // Listen for cart updates to refresh stock
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      if (product && slug) {
+        fetch("/api/products", { cache: "no-store" })
+          .then((res) => res.json())
+          .then((products) => {
+            const found = products.find((p: any) => 
+              p.slug === slug || p.id === slug || p.name.toLowerCase().replace(/\s+/g, "-") === slug
+            );
+            if (found) {
+              const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]")
+              if (found.ramOptions && found.ramOptions.length > 0) {
+                found.ramOptions = found.ramOptions.map((ram: any) => {
+                  const cartQty = cart.reduce((sum: number, item: any) => 
+                    item.id === found.id && item.selectedRam === ram.size ? sum + (item.qty || 1) : sum, 0
+                  );
+                  return { ...ram, quantity: Math.max(0, ram.quantity - cartQty) };
+                });
+              }
+              if (found.storageOptions && found.storageOptions.length > 0) {
+                found.storageOptions = found.storageOptions.map((storage: any) => {
+                  const cartQty = cart.reduce((sum: number, item: any) => 
+                    item.id === found.id && item.selectedStorage === storage.size ? sum + (item.qty || 1) : sum, 0
+                  );
+                  return { ...storage, quantity: Math.max(0, storage.quantity - cartQty) };
+                });
+              }
+              setProduct(found);
+              if (selectedRam) {
+                const updatedRam = found.ramOptions?.find((r: any) => r.size === selectedRam.size);
+                if (updatedRam) setSelectedRam(updatedRam);
+              }
+              if (selectedStorage) {
+                const updatedStorage = found.storageOptions?.find((s: any) => s.size === selectedStorage.size);
+                if (updatedStorage) setSelectedStorage(updatedStorage);
+              }
+            }
+          });
+      }
+    };
+    window.addEventListener("v0-cart-updated", handleCartUpdate as EventListener);
+    return () => window.removeEventListener("v0-cart-updated", handleCartUpdate as EventListener);
+  }, [product, slug, selectedRam, selectedStorage]);
 
   if (loading) return (
    <Loading/>

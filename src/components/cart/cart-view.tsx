@@ -75,15 +75,17 @@ export default function CartView() {
       const product = products.find(p => p.id === item.id)
       if (!product) return true
       
-      // For products with RAM/Storage options, check specific configuration stock
-      if (item.selectedRam && item.selectedStorage) {
+      // For products with RAM options, check total RAM usage across all storage combinations
+      if (item.selectedRam) {
         const ramOption = (product as any).ramOptions?.find((r: any) => r.size === item.selectedRam)
-        const storageOption = (product as any).storageOptions?.find((s: any) => s.size === item.selectedStorage)
+        if (!ramOption) return true
         
-        if (!ramOption || !storageOption) return true
+        // Count total quantity of this RAM size across all cart items
+        const totalRamUsage = items
+          .filter(cartItem => cartItem.id === item.id && cartItem.selectedRam === item.selectedRam)
+          .reduce((sum, cartItem) => sum + (cartItem.qty || 1), 0)
         
-        const availableStock = Math.min(ramOption.quantity, storageOption.quantity)
-        return availableStock < (item.qty || 1)
+        return ramOption.quantity < totalRamUsage
       }
       
       // For regular products
@@ -188,10 +190,9 @@ export default function CartView() {
                   
                   let availableStock = 0
                   if (product) {
-                    if (i.selectedRam && i.selectedStorage) {
+                    if (i.selectedRam) {
                       const ramOption = product.ramOptions?.find(r => r.size === i.selectedRam)
-                      const storageOption = product.storageOptions?.find(s => s.size === i.selectedStorage)
-                      availableStock = ramOption && storageOption ? Math.min(ramOption.quantity, storageOption.quantity) : 0
+                      availableStock = ramOption ? ramOption.quantity : 0
                     } else {
                       availableStock = product.quantity
                     }
@@ -271,10 +272,28 @@ export default function CartView() {
                               onClick={() => {
                                 const product = products.find(p => p.id === i.id)
                                 const currentQty = i.qty || 1
-                                const availableQty = product?.quantity || 0
-                                if (currentQty >= availableQty) {
-                                  toast.error('Cannot add more', { description: `Only ${availableQty} items available in stock.` })
-                                  return
+                                let originalStock = 0
+                                if (product) {
+                                  if (i.selectedRam) {
+                                    const ramOption = product.ramOptions?.find(r => r.size === i.selectedRam)
+                                    originalStock = ramOption ? ramOption.quantity : 0
+                                    
+                                    // Count total RAM usage across all cart items with same RAM
+                                    const totalRamUsage = items
+                                      .filter(cartItem => cartItem.id === i.id && cartItem.selectedRam === i.selectedRam)
+                                      .reduce((sum, cartItem) => sum + (cartItem.qty || 1), 0)
+                                    
+                                    if (totalRamUsage >= originalStock) {
+                                      toast.error('Cannot add more', { description: `Only ${originalStock} items available for ${i.selectedRam} RAM.` })
+                                      return
+                                    }
+                                  } else {
+                                    originalStock = product.quantity
+                                    if (currentQty >= originalStock) {
+                                      toast.error('Cannot add more', { description: `Only ${originalStock} items available in stock.` })
+                                      return
+                                    }
+                                  }
                                 }
                                 updateQty(i.id, currentQty + 1, i.color ?? undefined, i.selectedRam ?? undefined, i.selectedStorage ?? undefined, i.warranty ?? undefined)
                                 setItems(getCart())
