@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Target, Shield, Truck, Users, Award, MapPin } from 'lucide-react';
+import { Target, Shield, Truck, Users, Award, MapPin, Globe, Laptop, Tag, Lock } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -10,6 +10,8 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 pt-20 md:pt-12">
+        
+
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-6">About Future Of Gadgets</h1>
@@ -179,6 +181,42 @@ export default function AboutPage() {
                 <div className="text-sm text-gray-600">Trees Planted</div>
               </div>
             </div>
+          </div>
+        </div>
+
+
+        {/* Features Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 bg-white rounded-lg p-8">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+              <img src="/about/globe-free-img.png" alt="Worldwide Shipping" className="w-12 h-12" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Worldwide Shipping</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">We Are Committed To Delivering Your Order Accurately, In Good Condition, And Always On Time.</p>
+          </div>
+          
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+              <img src="/about/pngwing.com_.png" alt="Best Quality" className="w-12 h-12" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Best Quality</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">We promise our customers to give them the best quality laptop with a guarantee.</p>
+          </div>
+          
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+              <img src="/about/tag-free-img.png" alt="Best Offers" className="w-12 h-12" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Best Offers</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">We give our customers the best offer on Everything we have and customer happiness is our mission.</p>
+          </div>
+          
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+              <img src="/about/lock-free-img.png" alt="Secure Payments" className="w-12 h-12" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Secure Payments</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">We have all the payment options with secure & security. Feel free to buy anything with brother gadgets.</p>
           </div>
         </div>
       </div>
