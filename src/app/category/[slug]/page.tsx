@@ -76,9 +76,9 @@ export default function CategorySlugPage({
           </div>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {categories.map((item) => (
+            {categories.map((item, index) => (
               <Link
-                key={item.slug}
+                key={`${item.slug}-${index}`}
                 href={`/search?q=${item.slug}`}
                 className="group flex justify-center"
               >
@@ -92,9 +92,11 @@ export default function CategorySlugPage({
                       className="object-contain group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-black text-white text-center py-0.5 sm:py-1.5 text-[9px] sm:text-xs font-semibold">
-                    {item.name}
-                  </div>
+                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-black/70 text-white text-center py-1 sm:py-1.5 px-1 text-[9px] sm:text-[10px] font-semibold">
+                      <span className="block mx-auto leading-tight break-words w-[62px]">
+                        {item.name}
+                      </span>
+                    </div>
                 </div>
               </Link>
             ))}
