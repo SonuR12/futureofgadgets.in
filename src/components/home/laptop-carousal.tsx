@@ -4,13 +4,41 @@ import Image from "next/image";
 import Link from "next/link";
 
 const laptopCategories = [
-  { name: "Inspiron", image: "/category/ultra_thin_laptop.jpg", href: "/search?q=slim-laptop" },
-  { name: "Vastro", image: "/category/regular_laptop.jpg", href: "/search?q=apple-macbook" },
-  { name: "Touch (2 in 1)", image: "/category/touchscreen.png", href: "/search?q=touch-laptop" },
-  { name: "XPS", image: "/category/pro_laptop.jpg", href: "/search?q=pro-laptop" },
-  { name: "Gaming", image: "/category/best-gaming-laptop.jpg", href: "/search?q=gaming-laptop" },
-  { name: "Precision", image: "/category/office_laptop.jpg", href: "/search?q=office-laptop" },
-  { name: "Alienware", image: "/category/alienware.jpeg", href: "/search?q=alienware" },
+  {
+    name: "Inspiron",
+    image: "/category/ultra_thin_laptop.jpg",
+    href: "/search?q=slim-laptop",
+  },
+  {
+    name: "Vastro",
+    image: "/category/regular_laptop.jpg",
+    href: "/search?q=apple-macbook",
+  },
+  {
+    name: "Touch (2 in 1)",
+    image: "/category/touchscreen.png",
+    href: "/search?q=touch-laptop",
+  },
+  {
+    name: "XPS",
+    image: "/category/pro_laptop.jpg",
+    href: "/search?q=pro-laptop",
+  },
+  {
+    name: "Gaming Laptops",
+    image: "/category/best-gaming-laptop.jpg",
+    href: "/search?q=gaming-laptop",
+  },
+  {
+    name: "Precision",
+    image: "/category/office_laptop.jpg",
+    href: "/search?q=office-laptop",
+  },
+  {
+    name: "Alienware",
+    image: "/category/alienware.jpeg",
+    href: "/search?q=alienware",
+  },
 ];
 
 export default function LaptopCarousel() {
@@ -124,7 +152,11 @@ export default function LaptopCarousel() {
             onPointerCancel={handlePointerUp}
             onPointerLeave={handlePointerUp}
           >
-            {[...laptopCategories, ...laptopCategories, ...laptopCategories].map((category, idx) => (
+            {[
+              ...laptopCategories,
+              ...laptopCategories,
+              ...laptopCategories,
+            ].map((category, idx) => (
               <Link
                 key={`${category.name}-${idx}`}
                 href={category.href}
@@ -144,7 +176,9 @@ export default function LaptopCarousel() {
                     />
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-black/70 text-white text-center py-1 sm:py-1.5 px-1 text-[9px] sm:text-[10px] font-semibold leading-tight">
-                    {category.name}
+                    <span className="block mx-auto leading-tight break-words w-[62px]">
+                      {category.name}
+                    </span>
                   </div>
                 </div>
               </Link>
