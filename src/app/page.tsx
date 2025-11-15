@@ -15,6 +15,8 @@ import { GitCompareArrows, Headset, ShieldCheck, Truck } from "lucide-react";
 import Laptopcarousal from "@/components/home/laptop-carousal";
 import CustomerReview from "@/components/home/CustomerReview";
 import Loading from "./loading";
+import AlwaysWithYou from "@/components/home/AlwaysWithYou";
+import YoutubeSection from "@/components/home/YoutubeSection";
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true);
@@ -76,6 +78,8 @@ export default function HomePage() {
         <BestSeller />
         <ShopByBrands />
         <TrendingNow />
+        <AlwaysWithYou />
+        <YoutubeSection />
         <CustomerReview/>
       </div>
           {/* <section className="py-6 sm:py-10">
