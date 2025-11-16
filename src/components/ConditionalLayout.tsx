@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { Navbar } from './ui/Navbar'
 import BottomNav from './BottomNav'
@@ -9,22 +9,20 @@ import TopBanner from './TopBanner'
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [showBanner, setShowBanner] = useState(true)
+  const [bannerHeight, setBannerHeight] = useState(38)
 
-  // Admin routes don't need navbar or padding
-  if (pathname.startsWith('/admin')) {
-    return <>{children}</>
-  }
-
-  const [bannerHeight, setBannerHeight] = React.useState(38)
-  
-  React.useEffect(() => {
+  useEffect(() => {
     const updateHeight = () => {
-      setBannerHeight(window.innerWidth >= 768 ? 56 : 40)
+      setBannerHeight(window.innerWidth >= 768 ? 56 : 38)
     }
     updateHeight()
     window.addEventListener('resize', updateHeight)
     return () => window.removeEventListener('resize', updateHeight)
   }, [])
+
+  if (pathname.startsWith('/admin')) {
+    return <>{children}</>
+  }
 
   const bannerVisible = pathname === '/' && showBanner
 
