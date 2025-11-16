@@ -7,12 +7,12 @@ const laptopCategories = [
   {
     name: "Inspiron",
     image: "/category/ultra_thin_laptop.jpg",
-    href: "/search?q=slim-laptop",
+    href: "/search?q=inspiron",
   },
   {
     name: "Vastro",
     image: "/category/regular_laptop.jpg",
-    href: "/search?q=apple-macbook",
+    href: "/search?q=vastro",
   },
   {
     name: "Touch (2 in 1)",
@@ -22,7 +22,7 @@ const laptopCategories = [
   {
     name: "XPS",
     image: "/category/XPS.jpg",
-    href: "/search?q=pro-laptop",
+    href: "/search?q=xps",
   },
   {
     name: "Gaming Laptops",
@@ -32,7 +32,7 @@ const laptopCategories = [
   {
     name: "Precision",
     image: "/category/Precision.jpg",
-    href: "/search?q=office-laptop",
+    href: "/search?q=precision",
   },
   {
     name: "Alienware",
