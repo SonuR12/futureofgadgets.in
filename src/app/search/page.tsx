@@ -308,8 +308,8 @@ function SearchContent() {
                 We couldn&apos;t find any products matching &quot;{query}&quot;. Try different keywords.
               </p>
               <Link 
-                href="/" 
-                className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                href="/products/" 
+                className="inline-flex items-center justify-center px-3 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white text-xs sm:text-base font-medium rounded-md sm:rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Browse Products
               </Link>
