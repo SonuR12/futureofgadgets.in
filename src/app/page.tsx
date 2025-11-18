@@ -32,30 +32,6 @@ export default function HomePage() {
   }
   
 
-
-  const extraData = [
-    {
-      title: "Free Delivery",
-      description: "Free shipping on orders over $100",
-      icon: <Truck className="w-8 h-8 sm:w-10 sm:h-10" />,
-    },
-    {
-      title: "Free Returns",
-      description: "7-day return policy",
-      icon: <GitCompareArrows className="w-8 h-8 sm:w-10 sm:h-10" />,
-    },
-    {
-      title: "Customer Support",
-      description: "Friendly 24/7 customer support",
-      icon: <Headset className="w-8 h-8 sm:w-10 sm:h-10" />,
-    },
-    {
-      title: "Money Back Guarantee",
-      description: "Quality checked by our team",
-      icon: <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10" />,
-    },
-  ];
-
   return (
     <main className="min-h-screen bg-gray-50/5">
       {/* Hero Slider */}
