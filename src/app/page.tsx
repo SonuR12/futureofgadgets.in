@@ -11,7 +11,6 @@ import TrendingNow from "@/components/home/TrendingNow";
 import DealoftheDay from "@/components/home/DealoftheDay";
 import NewArrivals from "@/components/home/NewArrivals";
 import FeaturedSection from "@/components/home/FeaturedSection";
-import { GitCompareArrows, Headset, ShieldCheck, Truck } from "lucide-react";
 import Laptopcarousal from "@/components/home/laptop-carousal";
 import CustomerReview from "@/components/home/CustomerReview";
 import Loading from "./loading";
