@@ -17,6 +17,8 @@ type Product = {
   price: number;
   mrp?: number;
   quantity: number;
+  rating?: number;
+  ratingCount?: number;
 };
 
 export default function NewArrivals(){
@@ -112,7 +114,9 @@ export default function NewArrivals(){
               price: p.price,
               mrp: p.mrp,
               quantity: Math.max(0, (p.quantity || p.stock) - cartQty),
-              color: p.color
+              color: p.color,
+              rating: p.rating,
+              ratingCount: p.ratingCount
             };
           });
         setProducts(mappedProducts);

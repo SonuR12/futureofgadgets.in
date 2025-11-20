@@ -14,6 +14,7 @@ export type Product = {
   category: string
   brand?: string
   rating?: number
+  ratingCount?: number
   image: string
   frontImage?: string
   images?: string[]
