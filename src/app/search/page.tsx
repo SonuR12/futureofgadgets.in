@@ -315,11 +315,10 @@ function SearchContent() {
         )}
 
         {query && !loading && suggestions.length > 0 && (
-          <div className="border-t border-gray-200 pt-6 sm:pt-8">
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">
+          <div className="border-t border-gray-200 pt-6 sm:pt-8">            <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 px-4 sm:px-0 mb-4 sm:mb-6">
               {results.length === 0 ? 'You might also like' : 'Related Products'}
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {suggestions.slice(0, 8).map((product) => (
                 <ProductCard
                   key={product.id}
