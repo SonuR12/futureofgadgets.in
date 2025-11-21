@@ -953,11 +953,12 @@ export default function ProductTable() {
                             </div>
                             <Input
                               type="number"
-                              min="1"
+                              min="0"
+                              step="0.1"
                               placeholder="Count"
                               className="w-24"
                               value={form.watch("ratingCount") || ''}
-                              onChange={(e) => form.setValue("ratingCount", Number(e.target.value) || 0)}
+                              onChange={(e) => form.setValue("ratingCount", parseFloat(e.target.value) || 0)}
                             />
                           </div>
                         </div>
