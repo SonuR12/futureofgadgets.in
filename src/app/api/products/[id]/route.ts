@@ -107,6 +107,17 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     if (!existing) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
+
+    // Delete all images from Cloudinary
+    if (existing.frontImage) {
+      await deleteFromCloudinary(existing.frontImage);
+    }
+    if (Array.isArray(existing.images)) {
+      for (const img of existing.images) {
+        await deleteFromCloudinary(img);
+      }
+    }
+
     await prisma.product.delete({ where: { id } as any });
     return NextResponse.json({ success: true });
   } catch (err: any) {
