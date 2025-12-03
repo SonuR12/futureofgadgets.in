@@ -83,7 +83,7 @@ export default function OrdersPage() {
         
         if (ordersResponse.ok) {
           const ordersData = await ordersResponse.json()
-          console.log('Orders data:', ordersData.orders)
+          // console.log('Orders data:', ordersData.orders)
           setOrders(ordersData.orders)
         }
         

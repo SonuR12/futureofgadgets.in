@@ -86,13 +86,13 @@ export async function POST(req: Request) {
       warrantyOptions: data.warrantyOptions || []
     };
     
-    console.log('Creating product with data:', JSON.stringify(productData, null, 2));
+    // console.log('Creating product with data:', JSON.stringify(productData, null, 2));
     
     const product = await prisma.product.create({
       data: productData as any
     });
     
-    console.log('Product created successfully:', product.id);
+    // console.log('Product created successfully:', product.id);
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     console.error('Product creation error:', error);

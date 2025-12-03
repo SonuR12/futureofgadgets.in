@@ -271,7 +271,7 @@ export default function ProductTable() {
 
   useEffect(() => {
     if (open && !editId) {
-      console.log('Resetting form for create mode');
+      // console.log('Resetting form for create mode');
       form.reset(defaultValues);
       setDescriptionLines([""]);
       setBoxContents([""]);
@@ -286,7 +286,7 @@ export default function ProductTable() {
       // Force form to be valid initially
       setTimeout(() => {
         form.clearErrors();
-        console.log('Form state after reset:', form.formState);
+        // console.log('Form state after reset:', form.formState);
       }, 100);
     }
     if (!open) {
@@ -882,7 +882,7 @@ export default function ProductTable() {
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
-                  console.log('Form validation errors:', errors);
+                  // console.log('Form validation errors:', errors);
                   toast.error('Please fix form validation errors');
                 })} className="space-y-10">
                   <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
