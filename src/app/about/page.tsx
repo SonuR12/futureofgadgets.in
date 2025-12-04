@@ -9,20 +9,20 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 pt-20 md:pt-12">
+      <div className="max-w-6xl mx-auto  pt-12">
         
 
         {/* Hero Section */}
-        <div className="text-center mb-16">
+        <div className="text-center sm:text-left mb-16 px-4 xl:px-0">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">Future Of Gadgets</h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl">
             Your trusted destination for quality electronics and cutting-edge technology in India. 
             We&apos;re committed to making the latest innovations accessible to everyone.
           </p>
         </div>
 
         {/* Stats Section */}
-        <div className="grid md:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 px-4 xl:px-0">
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
             <div className="text-3xl font-bold text-blue-600 mb-2">10K+</div>
             <div className="text-gray-600">Happy Customers</div>
@@ -42,22 +42,22 @@ export default function AboutPage() {
         </div>
 
         {/* Story Section */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mb-12">
+        <div className="text-center sm:text-left mb-12 px-4 xl:px-0">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Founded in {new Date().getFullYear() - (new Date().getFullYear() - 2015)} with a simple vision: to make cutting-edge technology accessible 
-                to everyone in India. What started as a small electronics store has grown into a trusted 
+                Founded in <span className="font-bold text-gray-900">{new Date().getFullYear() - (new Date().getFullYear() - 2015)}</span> with a simple vision: to make cutting-edge technology accessible 
+                to everyone in <span className="font-bold text-gray-900">India</span>. What started as a small electronics store has grown into a trusted 
                 online destination for tech enthusiasts across the country.
               </p>
               <p className="text-gray-600 leading-relaxed mb-4">
-                We carefully curate our product selection, partnering with leading brands to 
-                ensure quality and value. Our team of tech experts tests every product to meet 
+                We carefully curate our product selection, partnering with <span className="font-bold text-gray-900">leading brands</span> to 
+                ensure quality and value. Our team of <span className="font-bold text-gray-900">tech experts</span> tests every product to meet 
                 our high standards before it reaches your doorstep.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Today, we&apos;re proud to serve thousands of customers across India, offering everything 
+                Today, we&apos;re proud to serve <span className="font-bold text-gray-900">thousands of customers</span> across India, offering everything 
                 from laptops and smart devices to smart home devices and gaming accessories.
               </p>
             </div>
@@ -74,8 +74,8 @@ export default function AboutPage() {
         </div>
 
         {/* Values Section */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">Our Values</h2>
+        <div className="mb-12 px-4 xl:px-0 ">
+          <h2 className="text-3xl font-bold text-gray-900 text-center sm:text-left mb-8">Our Values</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
@@ -114,7 +114,7 @@ export default function AboutPage() {
 
         {/* Sustainability & Environment */}
         <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-8">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">Our Environmental Commitment</h2>
+          <h2 className="text-3xl font-bold text-gray-900 text-center sm:text-left mb-8">Our Environmental Commitment</h2>
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             <div className="bg-white rounded-lg p-6">
               <div className="flex items-center mb-4">

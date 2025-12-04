@@ -36,11 +36,11 @@ export default function ContactPageClient() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 mt-5 sm:mt-2">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 !mt-0">
         {/* Header */}
-        <div className="text-left mb-8 sm:mb-12">
+        <div className="text-center sm:text-left mb-8 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">Contact Us</h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl">
             Have questions? We&apos;re here to help. Reach out to us through any of the following channels.
           </p>
         </div>
@@ -60,7 +60,7 @@ export default function ContactPageClient() {
 
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
-            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">Get in Touch</h2>
+            <h2 className="text-center sm:text-left text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">Get in Touch</h2>
             {loading ? (
               <div className="grid md:grid-cols-2 gap-8">
                 {[1, 2, 3, 4].map((i) => (
@@ -153,7 +153,7 @@ export default function ContactPageClient() {
         {/* FAQ Section */}
         <div className="mt-6 sm:mt-8">
           <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8">
-            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">Frequently Asked Questions</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center sm:text-left">Frequently Asked Questions</h2>
             <div className="max-w-7xl mx-auto">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-1">
