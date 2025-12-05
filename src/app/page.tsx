@@ -1,6 +1,3 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import HeaderSlider from "@/components/home/HomeSlider";
 import { Footer } from "@/components/Footer";
 import ShopByBrands from "@/components/home/ShopByBrands";
@@ -13,24 +10,10 @@ import NewArrivals from "@/components/home/NewArrivals";
 import FeaturedSection from "@/components/home/FeaturedSection";
 import Laptopcarousal from "@/components/home/laptop-carousal";
 import CustomerReview from "@/components/home/CustomerReview";
-import Loading from "./loading";
 import AlwaysWithYou from "@/components/home/AlwaysWithYou";
 import YoutubeSection from "@/components/home/YoutubeSection";
 
 export default function HomePage() {
-  // TESTING: Artificial loading delay - Remove for production
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
-    return <Loading/>;
-  }
-  
-
   return (
     <main className="min-h-screen bg-gray-50/5">
       {/* Hero Slider */}
