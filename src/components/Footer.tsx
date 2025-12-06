@@ -154,9 +154,9 @@ export function Footer({ className = "" }: FooterProps) {
 
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-6">
             {[
-              { href: '/privacy-policy', label: 'Privacy Policy' },
               { href: '/terms-of-service', label: 'Terms of Service' },
               { href: '/refund-policy', label: 'Refund Policy' },
+              { href: '/privacy-policy', label: 'Privacy Policy' },
               { href: '/cookie-policy', label: 'Cookie Policy' }
             ].map(link => (
               <Link key={link.href} href={link.href} onClick={() => window.scrollTo(0, 0)}
