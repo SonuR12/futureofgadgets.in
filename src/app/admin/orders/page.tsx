@@ -1184,12 +1184,6 @@ export default function AdminOrdersPage() {
                               <span className="text-gray-600">Transaction ID</span>
                               <span className="font-mono text-xs break-all">{selectedOrder.razorpayOrderId}</span>
                             </div>
-                            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
-                              <p className="text-xs text-green-700 font-medium flex items-center gap-1">
-                                <CheckCircle className="h-3 w-3" />
-                                Payment Verified & Secured by Razorpay
-                              </p>
-                            </div>
                           </>
                         )}
                         {selectedOrder.refundTransactionId && (

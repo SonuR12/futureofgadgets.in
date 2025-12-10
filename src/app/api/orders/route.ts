@@ -52,6 +52,8 @@ export async function GET() {
       deliveryDate: order.deliveryDate?.$date,
       billUrl: order.billUrl,
       refundTransactionId: order.refundTransactionId,
+      razorpayPaymentId: order.razorpayPaymentId,
+      razorpayOrderId: order.razorpayOrderId,
       createdAt: order.createdAt.$date,
       updatedAt: typeof order.updatedAt === 'string' ? order.updatedAt : order.updatedAt.$date
     }))
@@ -189,16 +191,21 @@ export async function POST(request: Request) {
 
     let order
     try {
+      const orderData: any = {
+        userId: user.id,
+        items: orderItems as any,
+        total,
+        status: paymentMethod === 'cod' ? "pending" : "paid",
+        address,
+        paymentMethod,
+        deliveryDate: new Date(deliveryDate)
+      }
+      
+      if (razorpayPaymentId) orderData.razorpayPaymentId = razorpayPaymentId
+      if (razorpayOrderId) orderData.razorpayOrderId = razorpayOrderId
+      
       order = await prisma.order.create({
-        data: {
-          userId: user.id,
-          items: orderItems as any,
-          total,
-          status: paymentMethod === 'cod' ? "pending" : "paid",
-          address,
-          paymentMethod,
-          deliveryDate: new Date(deliveryDate)
-        } as any
+        data: orderData
       })
     } catch (error) {
       // Restock items if order creation fails

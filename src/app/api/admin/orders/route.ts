@@ -62,6 +62,8 @@ export async function GET() {
             deliveryDate: 1,
             billUrl: 1,
             refundTransactionId: 1,
+            razorpayPaymentId: 1,
+            razorpayOrderId: 1,
             createdAt: 1,
             updatedAt: 1,
             'user.id': '$user._id',
@@ -91,6 +93,8 @@ export async function GET() {
       deliveryDate: order.deliveryDate.$date || order.deliveryDate,
       billUrl: order.billUrl,
       refundTransactionId: order.refundTransactionId,
+      razorpayPaymentId: order.razorpayPaymentId,
+      razorpayOrderId: order.razorpayOrderId,
       createdAt: order.createdAt.$date || order.createdAt,
       updatedAt: order.updatedAt.$date || order.updatedAt,
       user: {
@@ -197,6 +201,8 @@ export async function PATCH(request: Request) {
       deliveryDate: orderData.deliveryDate.$date || orderData.deliveryDate,
       billUrl: orderData.billUrl,
       refundTransactionId: orderData.refundTransactionId,
+      razorpayPaymentId: orderData.razorpayPaymentId,
+      razorpayOrderId: orderData.razorpayOrderId,
       createdAt: orderData.createdAt.$date || orderData.createdAt,
       updatedAt: orderData.updatedAt.$date || orderData.updatedAt,
       user: {
