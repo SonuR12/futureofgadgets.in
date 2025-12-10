@@ -81,11 +81,8 @@ function ProductImage({
       .then((res) => res.json())
       .then((products) => {
         const product = products.find((p: any) => p.id === productId);
-        setImageSrc(
-          product?.frontImage ||
-            product?.image ||
-            "/placeholder.svg"
-        );
+        const imageUrl = product?.frontImage || product?.image;
+        setImageSrc(imageUrl || "/placeholder.svg");
       })
       .catch(() => {
         setImageSrc("/placeholder.svg");
@@ -103,8 +100,7 @@ function ProductImage({
           className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src =
-              "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop";
+            target.src = "/placeholder.svg";
           }}
         />
       )}
