@@ -383,7 +383,7 @@ export default function ContactPageClient() {
                   </AccordionTrigger>
                   <AccordionContent>
                     Our complete Terms of Service, including account registration, product information, orders, payments, and intellectual property policies, can be found on our{' '}
-                    <Link href="/terms-and-conditions" className="text-blue-600 hover:underline font-medium">
+                    <Link href="/terms-of-service" className="text-blue-600 hover:underline font-medium">
                       Terms &amp; Conditions
                     </Link>{' '}
                     page.
