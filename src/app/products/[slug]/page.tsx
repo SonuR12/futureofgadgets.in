@@ -812,7 +812,7 @@ const handleBuyNowFromList = (e: React.MouseEvent, p: Product) => {
 
   // Generate structured data for SEO
   const generateStructuredData = () => {
-    if (!product) return null;
+    if (!product) return '';
     
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://futureofgadgets.in';
     const imageUrl = product.frontImage || product.image || product.coverImage;
@@ -884,7 +884,7 @@ const handleBuyNowFromList = (e: React.MouseEvent, p: Product) => {
         {/* Breadcrumb */}
         <Breadcrumbs 
           items={[
-            { label: 'Home', href: '/' },
+            { label: 'Category', href: '/category' },
             { label: product.category, href: `/search?q=${encodeURIComponent(product.category)}` },
             { label: product.name, href: `/products/${slug}` }
           ]}
