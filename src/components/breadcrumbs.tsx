@@ -45,26 +45,28 @@ export default function Breadcrumbs({ items, className = "" }: BreadcrumbsProps)
         }}
       />
       <nav 
-        className={`text-xs sm:text-sm text-gray-600 items-center gap-1 ${className}`}
+        className={`text-xs sm:text-sm text-gray-600 items-center gap-1 w-full overflow-hidden ${className}`}
         aria-label="Breadcrumb"
       >
-        {items.map((item, index) => (
-          <div key={index} className="flex items-center gap-1">
-            {index > 0 && (
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-gray-400" />
-            )}
-            {index === items.length - 1 ? (
-              <span className="text-black font-medium truncate">{item.label}</span>
-            ) : (
-              <button
-                onClick={() => router.push(item.href)}
-                className="hover:text-blue-600 cursor-pointer hover:underline transition-colors whitespace-nowrap"
-              >
-                {item.label}
-              </button>
-            )}
-          </div>
-        ))}
+        <div className="flex items-center gap-1 w-full overflow-hidden">
+          {items.map((item, index) => (
+            <div key={index} className="flex items-center gap-1 min-w-0">
+              {index > 0 && (
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-gray-400" />
+              )}
+              {index === items.length - 1 ? (
+                <span className="text-black font-medium truncate max-w-[80vw]">{item.label}</span>
+              ) : (
+                <button
+                  onClick={() => router.push(item.href)}
+                  className="hover:text-blue-600 cursor-pointer hover:underline transition-colors whitespace-nowrap flex-shrink-0"
+                >
+                  {item.label}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
       </nav>
     </>
   );
