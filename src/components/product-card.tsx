@@ -55,7 +55,16 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
     }
   }, [product.quantity, product.stock, product.ramOptions]);
 
-  const imageUrl = product.coverImage || product.frontImage || product.image || "/placeholder.svg";
+  const getValidImageUrl = () => {
+    const urls = [product.coverImage, product.frontImage, product.image].filter(Boolean);
+    for (const url of urls) {
+      if (url && !url.includes('placeholder.com') && !url.includes('via.placeholder')) {
+        return url;
+      }
+    }
+    return "/placeholder.svg";
+  };
+  const imageUrl = getValidImageUrl();
   const mrp = Number(product.mrp) || 0;
   const price = Number(product.price) || 0;
   const discountPct = mrp > 0 && mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
@@ -126,7 +135,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
           {/* FIX: fixed height for image block so all cards match */}
           <div className="relative h-56 sm:h-64 bg-white p-4 flex items-center justify-center overflow-hidden">
             <Image
-              src={imageUrl}
+              src={imageUrl || "/placeholder.svg"}
               alt={product.name}
               width={400}
               height={300}

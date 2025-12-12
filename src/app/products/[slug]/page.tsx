@@ -7,6 +7,7 @@ import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { toast } from "sonner";
 import { ShoppingCart, Heart, Share2, Star, Truck, Shield, RotateCcw, CreditCard, Check, ChevronRight, Award, Copy, X } from "lucide-react";
 import ProductCard from "@/components/product-card";
+import Breadcrumbs from "@/components/breadcrumbs";
 
 type Product = {
   id: string;
@@ -809,20 +810,86 @@ const handleBuyNowFromList = (e: React.MouseEvent, p: Product) => {
   const baseMrp = mrp + (selectedRam?.price || 0) + (selectedStorage?.price || 0);
   const discount = baseMrp > 0 && baseMrp > price ? Math.round(((baseMrp - price) / baseMrp) * 100) : 0;
 
+  // Generate structured data for SEO
+  const generateStructuredData = () => {
+    if (!product) return null;
+    
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://futureofgadgets.in';
+    const imageUrl = product.frontImage || product.image || product.coverImage;
+    const fullImageUrl = imageUrl?.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl || '/logo.png'}`;
+    
+    const structuredData = {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": product.name,
+      "description": product.description || `Buy ${product.name} at best price with warranty`,
+      "image": fullImageUrl,
+      "brand": {
+        "@type": "Brand",
+        "name": product.brand || "Future of Gadgets"
+      },
+      "category": product.category,
+      "sku": product.sku || product.id,
+      "offers": {
+        "@type": "Offer",
+        "url": `${baseUrl}/products/${slug}`,
+        "priceCurrency": "INR",
+        "price": finalPrice,
+        "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        "availability": availableStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        "seller": {
+          "@type": "Organization",
+          "name": "Future of Gadgets",
+          "url": baseUrl
+        }
+      },
+      "aggregateRating": product.rating ? {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating,
+        "reviewCount": reviews.length || 1,
+        "bestRating": 5,
+        "worstRating": 1
+      } : undefined,
+      "review": reviews.length > 0 ? reviews.map(review => ({
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": review.rating,
+          "bestRating": 5
+        },
+        "author": {
+          "@type": "Person",
+          "name": review.userName
+        },
+        "reviewBody": review.comment,
+        "datePublished": review.createdAt
+      })) : undefined
+    };
+    
+    return JSON.stringify(structuredData);
+  };
+
   return (
     <>
+      {product && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: generateStructuredData()
+          }}
+        />
+      )}
     <div className="min-h-screen bg-gray-50/50">
       <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
         {/* Breadcrumb */}
-        {/* <div className="bg-white rounded-lg px-2 sm:px-4 py-3 mb-4 my-2 shadow-sm"> */}
-          <div className="text-xs sm:text-sm text-gray-600 items-center my-4 sm:mt-2 sm:mb-3 gap-1 hidden md:flex">
-            <span className="hover:text-blue-600 cursor-pointer hover:underline transition-colors whitespace-nowrap" onClick={() => router.push('/')}>Home</span>
-            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="hover:text-blue-600 cursor-pointer hover:underline transition-colors whitespace-nowrap" onClick={() => router.push(`/category/${product.category.toLowerCase()}`)}>{product.category}</span>
-            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="text-black font-medium truncate">{product.name}</span>
-          </div>
-        {/* </div> */}
+        <Breadcrumbs 
+          items={[
+            { label: 'Home', href: '/' },
+            { label: product.category, href: `/search?q=${encodeURIComponent(product.category)}` },
+            { label: product.name, href: `/products/${slug}` }
+          ]}
+          className="my-4 sm:mt-2 sm:mb-3 hidden md:flex"
+        />
 
         <div className="grid lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
           {/* Left: Images */}

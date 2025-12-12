@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://futureofgadgets.in'
   
   const categories = ['laptops', 'desktops', 'monitors', 'keyboards', 'headphones', 'accessories']
@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/privacy-policy',
     '/terms-of-service',
     '/cookie-policy',
+    '/refund-policy',
     '/auth/signin',
     '/category',
   ]
@@ -43,5 +44,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...staticPages, ...categoryPages, ...sectionPages]
+  // Fetch and add product pages
+  let productPages: MetadataRoute.Sitemap = []
+  try {
+    const res = await fetch(`${baseUrl}/api/products`, { 
+      cache: 'no-store',
+      next: { revalidate: 3600 } // Revalidate every hour
+    })
+    const products = await res.json()
+    
+    productPages = products.map((product: any) => ({
+      url: `${baseUrl}/products/${product.slug || product.id}`,
+      lastModified: new Date(product.updatedAt || new Date()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
+  } catch (error) {
+    console.error('Error fetching products for sitemap:', error)
+  }
+
+  return [...staticPages, ...categoryPages, ...sectionPages, ...productPages]
 }
