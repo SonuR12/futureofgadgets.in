@@ -26,6 +26,12 @@ export default function TrendingNow(){
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
     e.stopPropagation()
+    if (product.quantity === 0) {
+      toast.error("Out of Stock", {
+        description: "This product is currently unavailable."
+      })
+      return
+    }
     addToCart({
       id: product.id,
       slug: product.slug,
@@ -34,12 +40,21 @@ export default function TrendingNow(){
       image: product.frontImage || product.image,
       color: product.selectedColor || product.color
     })
+    setProducts(products.map(p => 
+      p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p
+    ))
     toast.success('', { description: `${product.name} has been added to your cart.` })
   }
 
   const handleBuyNow = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
     e.stopPropagation()
+    if (product.quantity === 0) {
+      toast.error("Out of Stock", {
+        description: "This product is currently unavailable."
+      })
+      return
+    }
     addToCart({
       id: product.id,
       slug: product.slug,
@@ -55,12 +70,22 @@ export default function TrendingNow(){
     fetch('/api/products')
       .then(res => res.json())
       .then(allProducts => {
+        const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]")
         const trending = allProducts
           .filter((p: any) => p.mrp && p.mrp > p.price)
           .sort((a: any, b: any) => {
             const discountA = ((a.mrp - a.price) / a.mrp) * 100
             const discountB = ((b.mrp - b.price) / b.mrp) * 100
             return discountB - discountA
+          })
+          .map((p: any) => {
+            const cartQty = cart.reduce((sum: number, item: any) => 
+              item.id === p.id ? sum + (item.qty || 1) : sum, 0
+            )
+            return {
+              ...p,
+              quantity: Math.max(0, (p.quantity || p.stock) - cartQty)
+            }
           })
         setProducts(trending)
       })

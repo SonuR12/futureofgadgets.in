@@ -28,6 +28,12 @@ export default function DealoftheDay(){
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
     e.stopPropagation()
+    if (product.quantity === 0) {
+      toast.error("Out of Stock", {
+        description: "This product is currently unavailable."
+      })
+      return
+    }
     addToCart({
       id: product.id,
       slug: product.slug,
@@ -36,12 +42,21 @@ export default function DealoftheDay(){
       image: product.frontImage || product.image,
       color: product.selectedColor || product.color
     })
+    setProducts(products.map(p => 
+      p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p
+    ))
     toast.success('', { description: `${product.name} has been added to your cart.` })
   }
 
   const handleBuyNow = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
     e.stopPropagation()
+    if (product.quantity === 0) {
+      toast.error("Out of Stock", {
+        description: "This product is currently unavailable."
+      })
+      return
+    }
     addToCart({
       id: product.id,
       slug: product.slug,
@@ -58,12 +73,35 @@ export default function DealoftheDay(){
       fetch('/api/settings').then(res => res.json()),
       fetch('/api/products').then(res => res.json())
     ]).then(([settings, allProducts]) => {
+      const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]")
       const ids = settings.sectionProducts?.dealOfTheDay || []
-      if (ids.length > 0) {
-        setProducts(allProducts.filter((p: any) => ids.includes(p.id)))
-      } else {
-        setProducts(popularProducts)
-      }
+      let filteredProducts = ids.length > 0 
+        ? allProducts.filter((p: any) => ids.includes(p.id))
+        : popularProducts
+      
+      const mappedProducts = filteredProducts.map((p: any) => {
+        const cartQty = cart.reduce((sum: number, item: any) => 
+          item.id === p.id ? sum + (item.qty || 1) : sum, 0
+        )
+        return {
+          id: p.id,
+          slug: p.slug || p.name.toLowerCase().replace(/\s+/g, "-"),
+          name: p.name || p.title,
+          type: p.category || p.type,
+          description: p.description,
+          coverImage: p.frontImage,
+          frontImage: p.frontImage,
+          image: p.image,
+          images: p.images || [p.frontImage],
+          price: p.price,
+          mrp: p.mrp,
+          quantity: Math.max(0, (p.quantity || p.stock) - cartQty),
+          color: p.color,
+          rating: p.rating,
+          ratingCount: p.ratingCount
+        }
+      })
+      setProducts(mappedProducts)
     }).catch(() => setProducts(popularProducts))
       .finally(() => setLoading(false))
   }, [])
