@@ -193,11 +193,11 @@
 ### Verification Email
 ```
 ┌─────────────────────────────────────────┐
-│         Electronic Web                  │
+│         Future Of Gadegets                  │
 │      Verify your email address          │
 ├─────────────────────────────────────────┤
 │                                         │
-│  Welcome to Electronic Web!             │
+│  Welcome to Future Of Gadegets!             │
 │                                         │
 │  Thank you for signing up. Please       │
 │  verify your email address by clicking  │
@@ -220,7 +220,7 @@
 ### Password Reset Email
 ```
 ┌─────────────────────────────────────────┐
-│         Electronic Web                  │
+│         Future Of Gadegets                  │
 │       Reset your password               │
 ├─────────────────────────────────────────┤
 │                                         │

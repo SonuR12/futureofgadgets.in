@@ -20,7 +20,7 @@ import { Search, User, Heart, ShoppingBag, X, Headset } from "lucide-react";
 import { getWishlist } from "@/lib/wishlist";
 import { AuthDialog } from "../auth-dialog";
 
-export function Navbar({ offsetTop = '0px' }: { offsetTop?: string }) {
+export function Navbar({ offsetTop = "0px" }: { offsetTop?: string }) {
   const { data: session, status } = useSession();
   const [count, setCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -145,85 +145,81 @@ export function Navbar({ offsetTop = '0px' }: { offsetTop?: string }) {
                   />
                 </div>
 
-                
-
                 <div className="flex flex-col leading-[1rem] -space-y-1 ">
-      <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-        Future of
-      </span>
-      <span className="text-sm leading-5 md:text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-        Gadgets
-      </span>
-    </div>
+                  <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Future of
+                  </span>
+                  <span className="text-sm leading-5 md:text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Gadgets
+                  </span>
+                </div>
               </>
             </Link>
 
             {/* Desktop nav */}
             {/* Desktop nav */}
-<div className="hidden md:flex items-center gap-1 xl:ml-2">
-  {[
-    { href: "/category/laptops", label: "Laptops" },
-    { href: "/category/accessories", label: "Accessories" },
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Support" },
-  ].map((link) => (
-    <Link
-      key={link.href}
-      href={link.href}
-      className={`relative text-sm font-medium px-3 py-2 pb-1 transition-colors ${
-        pathname === link.href || pathname.startsWith(link.href)
-          ? "text-blue-600 underline underline-offset-4 decoration-2 decoration-blue-500"
-          : "text-gray-700 hover:text-blue-600"
-      }`}
-    >
-      {link.label}
-    </Link>
-  ))}
-</div>
-
+            <div className="hidden md:flex items-center gap-1 xl:ml-2">
+              {[
+                { href: "/category/laptops", label: "Laptops" },
+                { href: "/category/accessories", label: "Accessories" },
+                { href: "/about", label: "About" },
+                { href: "/contact", label: "Support" },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative text-sm font-medium px-3 py-2 pb-1 transition-colors ${
+                    pathname === link.href || pathname.startsWith(link.href)
+                      ? "text-blue-600 underline underline-offset-4 decoration-2 decoration-blue-500"
+                      : "text-gray-700 hover:text-blue-600"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Mobile Search Icon */}
-{/* Mobile Icons */}
-<div className="md:hidden flex items-center gap-0.5">
-  {/* Search Button */}
-  <button
-    onClick={() => setMobileSearchOpen(true)}
-    aria-label="Open search"
-    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-  >
-    <Search className="w-5 h-5 text-gray-700" />
-  </button>
-  {/* Wishlist Button */}
-  <Link
-    href="/wishlist"
-    aria-label="View wishlist"
-    className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
-  >
-    <Heart className={`w-5 h-5 ${
-                    pathname === "/wishlist"
-                      ? "fill-red-500 text-red-500"
-                      : "text-gray-700 hover:text-red-600"
-                  }`}
-                />
-    {wishlistCount > 0 && (
-      <span className="absolute top-1 right-0.5 h-4 w-4 rounded-full bg-pink-500 text-white text-[8px] font-bold flex items-center justify-center">
-        {wishlistCount > 9 ? "9+" : wishlistCount}
-      </span>
-    )}
-  </Link>
+          {/* Mobile Icons */}
+          <div className="md:hidden flex items-center gap-0.5">
+            {/* Search Button */}
+            <button
+              onClick={() => setMobileSearchOpen(true)}
+              aria-label="Open search"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <Search className="w-5 h-5 text-gray-700" />
+            </button>
+            {/* Wishlist Button */}
+            <Link
+              href="/wishlist"
+              aria-label="View wishlist"
+              className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <Heart
+                className={`w-5 h-5 ${
+                  pathname === "/wishlist"
+                    ? "fill-red-500 text-red-500"
+                    : "text-gray-700 hover:text-red-600"
+                }`}
+              />
+              {wishlistCount > 0 && (
+                <span className="absolute top-1 right-0.5 h-4 w-4 rounded-full bg-pink-500 text-white text-[8px] font-bold flex items-center justify-center">
+                  {wishlistCount > 9 ? "9+" : wishlistCount}
+                </span>
+              )}
+            </Link>
 
-  {/* Support Button */}
-  <Link
-    href="/contact"
-    aria-label="Support"
-    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-  >
-    <Headset className="w-5 h-5 text-gray-700" />
-  </Link>
-
-</div>
-
+            {/* Support Button */}
+            <Link
+              href="/contact"
+              aria-label="Support"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <Headset className="w-5 h-5 text-gray-700" />
+            </Link>
+          </div>
 
           {/* Center: search (desktop) */}
           <div className="hidden md:flex flex-1 max-w-xl gap-2 items-center justify-center">
@@ -388,7 +384,20 @@ export function Navbar({ offsetTop = '0px' }: { offsetTop?: string }) {
                       className="h-8 w-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-8 w-9 md:h-9 md:w-9 text-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <div className={`h-8 w-9 md:h-9 md:w-9 text-center rounded-full flex items-center justify-center ${
+                      session?.user?.name ? (() => {
+                        const name = session.user.name;
+                        let hash = 0;
+                        for (let i = 0; i < name.length; i++) {
+                          hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        const colors = [
+                          'bg-slate-600', 'bg-gray-600', 'bg-zinc-600', 'bg-neutral-600',
+                          'bg-stone-600', 'bg-red-600', 'bg-orange-600', 'bg-amber-600'
+                        ];
+                        return colors[Math.abs(hash) % colors.length];
+                      })() : 'bg-gradient-to-br from-blue-500 to-purple-600'
+                    }`}>
                       <span className="text-xs md:text-sm font-semibold text-white w-8 h-8 text-center flex items-center justify-center">
                         {session?.user?.name?.charAt(0).toUpperCase() || "U"}
                       </span>
@@ -437,7 +446,20 @@ export function Navbar({ offsetTop = '0px' }: { offsetTop?: string }) {
                               className="h-12 w-12 rounded-full object-cover ring-3 ring-white shadow-lg"
                             />
                           ) : (
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center ring-3 ring-white shadow-lg">
+                            <div className={`h-12 w-12 rounded-full flex items-center justify-center ring-3 ring-white shadow-lg ${
+                              session?.user?.name ? (() => {
+                                const name = session.user.name;
+                                let hash = 0;
+                                for (let i = 0; i < name.length; i++) {
+                                  hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                                }
+                                const colors = [
+                                  'bg-slate-600', 'bg-gray-600', 'bg-zinc-600', 'bg-neutral-600',
+                                  'bg-stone-600', 'bg-red-600', 'bg-orange-600', 'bg-amber-600'
+                                ];
+                                return colors[Math.abs(hash) % colors.length];
+                              })() : 'bg-gradient-to-br from-blue-500 to-purple-600'
+                            }`}>
                               <span className="text-lg font-semibold text-white">
                                 {session?.user?.name?.charAt(0).toUpperCase() ||
                                   "U"}

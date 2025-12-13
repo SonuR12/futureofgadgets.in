@@ -1,6 +1,6 @@
 # Email Verification & Password Reset Setup
 
-This document explains the email verification and password reset features added to the Electronic Web e-commerce platform.
+This document explains the email verification and password reset features added to the Future Of Gadegets e-commerce platform.
 
 ## 🎯 Features Added
 

@@ -45,7 +45,7 @@
 When user signs up, you'll see:
 ```
 📧 Email would be sent to: user@example.com
-📧 Subject: Verify your email - Electronic Web
+📧 Subject: Verify your email - Future Of Gadegets
 📧 Verification link: http://localhost:3000/auth/verify-email?token=abc123...
 ```
 

@@ -136,7 +136,20 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="h-9 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <div className={`h-9 w-12 rounded-full flex items-center justify-center ${
+                        session?.user?.name ? (() => {
+                          const name = session.user.name;
+                          let hash = 0;
+                          for (let i = 0; i < name.length; i++) {
+                            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                          }
+                          const colors = [
+                            'bg-slate-600', 'bg-gray-600', 'bg-zinc-600', 'bg-neutral-600',
+                            'bg-stone-600', 'bg-red-600', 'bg-orange-600', 'bg-amber-600'
+                          ];
+                          return colors[Math.abs(hash) % colors.length];
+                        })() : 'bg-gradient-to-br from-blue-500 to-purple-600'
+                      }`}>
                         <span className="text-sm font-semibold text-white">
                           {session?.user?.name?.charAt(0).toUpperCase() || "A"}
                         </span>
@@ -242,7 +255,20 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                       className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <div className={`h-7 w-7 sm:h-9 sm:w-9 rounded-full flex items-center justify-center ${
+                      session?.user?.name ? (() => {
+                        const name = session.user.name;
+                        let hash = 0;
+                        for (let i = 0; i < name.length; i++) {
+                          hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        const colors = [
+                          'bg-slate-600', 'bg-gray-600', 'bg-zinc-600', 'bg-neutral-600',
+                          'bg-stone-600', 'bg-red-600', 'bg-orange-600', 'bg-amber-600'
+                        ];
+                        return colors[Math.abs(hash) % colors.length];
+                      })() : 'bg-gradient-to-br from-blue-500 to-purple-600'
+                    }`}>
                       <span className="text-xs sm:text-sm font-semibold text-white">
                         {session?.user?.name?.charAt(0).toUpperCase() || "A"}
                       </span>

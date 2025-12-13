@@ -31,7 +31,7 @@ npm run dev
 Check your terminal/console for output like:
 ```
 📧 Email would be sent to: test@example.com
-📧 Subject: Verify your email - Electronic Web
+📧 Subject: Verify your email - Future Of Gadegets
 📧 Verification link: http://localhost:3000/auth/verify-email?token=...
 ```
 
@@ -59,7 +59,7 @@ Check your terminal/console for output like:
 Check your terminal/console for:
 ```
 📧 Email would be sent to: test@example.com
-📧 Subject: Reset your password - Electronic Web
+📧 Subject: Reset your password - Future Of Gadegets
 📧 Verification link: http://localhost:3000/auth/reset-password?token=...
 ```
 
@@ -122,7 +122,7 @@ SMTP_PASS=your_mailgun_password
 When emails are sent, you'll see:
 ```
 📧 Email would be sent to: user@example.com
-📧 Subject: Verify your email - Electronic Web
+📧 Subject: Verify your email - Future Of Gadegets
 📧 Verification link: http://localhost:3000/auth/verify-email?token=abc123...
 ```
 
