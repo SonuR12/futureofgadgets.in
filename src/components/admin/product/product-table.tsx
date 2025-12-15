@@ -1437,7 +1437,6 @@ export default function ProductTable() {
                       <div>
                         <label className="block text-sm font-medium mb-2">Front Image {editId ? "(optional)" : "*"}</label>
                         <Input
-                        required
                           type="file"
                           accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                           onChange={(e) => {
