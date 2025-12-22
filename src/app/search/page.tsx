@@ -189,10 +189,10 @@ function SearchContent() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight">
-                  Search Results
+                 {query}
                 </h1>
                 <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">
-                  {results.length} {results.length === 1 ? 'product' : 'products'} found for <span className="font-medium">&quot;{query}&quot;</span>
+                  {results.length} {results.length === 1 ? 'product' : 'products'}
                 </p>
               </div>
               {results.length > 0 && (

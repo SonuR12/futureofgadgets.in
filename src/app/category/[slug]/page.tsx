@@ -16,6 +16,37 @@ export default function CategorySlugPage({
   useEffect(() => {
     params.then((p) => {
       setSlug(p.slug);
+      
+      // Handle specific laptop categories
+      if (p.slug === "refurbished-laptops") {
+        setCategories([
+          { name: "Gaming Laptops", slug: "refurbished-gaming-laptops", image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=300&fit=crop" },
+          { name: "Business Laptops", slug: "refurbished-business-laptops", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop" },
+          { name: "Ultrabooks", slug: "refurbished-ultrabooks", image: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&h=300&fit=crop" },
+          { name: "Budget Laptops", slug: "refurbished-budget-laptops", image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=300&fit=crop" },
+          { name: "Workstations", slug: "refurbished-workstations", image: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=300&fit=crop" },
+          { name: "2-in-1 Laptops", slug: "refurbished-2in1-laptops", image: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400&h=300&fit=crop" }
+        ]);
+        setTitle("Refurbished Laptops");
+        setLoading(false);
+        return;
+      }
+      
+      if (p.slug === "open-box-laptops") {
+        setCategories([
+          { name: "Gaming Laptops", slug: "open-box-gaming-laptops", image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=300&fit=crop" },
+          { name: "Business Laptops", slug: "open-box-business-laptops", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop" },
+          { name: "Ultrabooks", slug: "open-box-ultrabooks", image: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&h=300&fit=crop" },
+          { name: "Budget Laptops", slug: "open-box-budget-laptops", image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=300&fit=crop" },
+          { name: "Workstations", slug: "open-box-workstations", image: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=300&fit=crop" },
+          { name: "2-in-1 Laptops", slug: "open-box-2in1-laptops", image: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400&h=300&fit=crop" }
+        ]);
+        setTitle("Open Box Laptops");
+        setLoading(false);
+        return;
+      }
+      
+      // Fetch from API for other categories
       fetch("/api/settings")
         .then((res) => res.json())
         .then((data) => {
