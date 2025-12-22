@@ -140,7 +140,7 @@ export function Footer({ className = "" }: FooterProps) {
         <div className="border-t border-gray-800 mt-10 pt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-4">
           <div className="text-sm text-gray-400 text-center sm:text-left">
             <p>© 2025 Future Of Gadgets. All rights reserved.</p>
-            <p className="mt-1">
+            {/* <p className="mt-1">
               Made by{' '}
               <Link href="https://www.linkedin.com/in/sonu-rai-r12/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
                 Sonu
@@ -149,7 +149,7 @@ export function Footer({ className = "" }: FooterProps) {
               <Link href="https://www.linkedin.com/in/aakash-singh-575205310/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
                 Aakash
               </Link>
-            </p>
+            </p> */}
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-6">
