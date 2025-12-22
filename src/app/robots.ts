@@ -7,18 +7,18 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/products/', '/category/', '/about', '/contact', '/catalog'],
+        allow: ['/', '/products/', '/category/', '/about', '/contact', '/catalog', '/api/product-feed'],
         disallow: ['/api/', '/admin/', '/profile/', '/orders/', '/checkout/', '/auth/', '/wishlist'],
       },
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/products/', '/category/', '/about', '/contact', '/catalog', '/search'],
+        allow: ['/', '/products/', '/category/', '/about', '/contact', '/catalog', '/search', '/api/product-feed'],
         disallow: ['/api/', '/admin/', '/profile/', '/orders/', '/checkout/', '/wishlist'],
         crawlDelay: 1,
       },
       {
         userAgent: 'Bingbot',
-        allow: ['/', '/products/', '/category/', '/about', '/contact', '/catalog'],
+        allow: ['/', '/products/', '/category/', '/about', '/contact', '/catalog', '/api/product-feed'],
         disallow: ['/api/', '/admin/', '/profile/', '/orders/', '/checkout/', '/auth/', '/wishlist'],
         crawlDelay: 2,
       },
