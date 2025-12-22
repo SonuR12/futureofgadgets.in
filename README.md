@@ -1,6 +1,6 @@
 # Future Of Gadegets - E-commerce Platform
 
-A modern e-commerce platform built with Next.js 14, featuring a clean Flipkart-inspired design for electronics and tech products.
+A modern e-commerce platform built with Next.js 16, featuring a clean Flipkart-inspired design for electronics and tech products.
 
 ## 📸 Screenshot  
 
