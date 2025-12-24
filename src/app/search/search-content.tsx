@@ -185,7 +185,7 @@ export default function SearchContent() {
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-0 sm:px-6 lg:px-8">
         {initialQuery && (
-          <div className="border-b bg-white px-4 sm:px-0 py-2 sm:py-6">
+          <div className="border-b sm:border-none bg-white px-4 sm:px-0 py-2 sm:py-6">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
