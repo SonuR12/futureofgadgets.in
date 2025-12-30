@@ -12,32 +12,32 @@ const laptopCategories = [
   {
     name: "Vastro",
     image: "/category/regular_laptop.jpg",
-    href: "/search?q=vastro",
+    href: "/search?q=Vastro",
   },
   {
     name: "Touch (2 in 1)",
     image: "/category/touchscreen.png",
-    href: "/search?q=touch-laptop",
+    href: "/search?q=Touch",
   },
   {
     name: "XPS",
     image: "/category/XPS.jpg",
-    href: "/search?q=xps",
+    href: "/search?q=XPS",
   },
   {
     name: "Gaming Laptops",
     image: "/category/best-gaming-laptop.jpg",
-    href: "/search?q=gaming-laptop",
+    href: "/search?q=Gaming",
   },
   {
     name: "Precision",
     image: "/category/Precision.jpg",
-    href: "/search?q=precision",
+    href: "/search?q=Precision",
   },
   {
     name: "Alienware",
     image: "/category/alienware.jpeg",
-    href: "/search?q=alienware",
+    href: "/search?q=Alienware",
   },
 ];
 
@@ -163,6 +163,7 @@ export default function LaptopCarousel() {
                 className="flex flex-col items-center group flex-shrink-0"
                 onClick={(e) => {
                   if (isPointerDownRef.current) e.preventDefault();
+                  else window.scrollTo(0, 0);
                 }}
               >
                 <div className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 bg-gray-200/50 border border-gray-200/50 rounded-full overflow-hidden transition-all duration-300">
